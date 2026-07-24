@@ -38,7 +38,7 @@ Help a non-specialist user understand the path from large language models to rea
 
 - The Obsidian file tree must reflect the visible knowledge hierarchy. Do not change only a note heading when the agreed concept name or hierarchy has changed; rename the corresponding folder or file when appropriate.
 - Organize content from broad to narrow: learning module → mechanism section → topic system → stable subsection → atomic concept note.
-- Prefix ordered module and section folders with their outline number, such as `01-LLM`, `01-基础原理与模型机制`, and `1.1-Tokenizer文本离散化系统`.
+- Prefix ordered module and section folders with their outline number, such as `01-LLM`, `01-模型基础与静态结构`, and `1.1-Tokenizer文本离散化系统`.
 - Name a topic folder after the highest-level object, mechanism, or system being studied, followed by its role when clarification is useful. Prefer `Tokenizer文本离散化系统` over a loose collection name such as `文本离散化与Token`.
 - Give each topic folder one numbered entry note ending in `概览`, such as `1.1-Tokenizer文本离散化系统概览.md`. The folder expresses expandable hierarchy; the clearly named overview note owns the topic map, learning order, progress, concept boundaries, and links to subsection notes.
 - Use dotted hierarchical numbering rather than compressed numbering: `1.1.1`, `1.1.1.1`, and so on; do not use ambiguous forms such as `1.11` or `1.111`.
