@@ -28,6 +28,7 @@ Help a non-specialist user understand the path from large language models to rea
 - When suitable, add an `开放模型观察` section using a precisely named open-weight model version.
 - Use primary sources for model settings: official model cards, official repositories, checked-in configs, or technical reports.
 - Separate published facts from inference and unknown information; record the source and verification date for version-sensitive settings.
+- Include OpenAI models in the observation set, but match the claim to the available evidence. Use OpenAI open-weight models such as a precisely named `gpt-oss` version for inspectable architecture and configuration examples. Use closed GPT models only for officially documented interfaces, runtime behavior, and capability observations; mark unpublished internal architecture as unknown and never infer it from product behavior.
 - When turning a conversation into notes, distinguish facts, the user's current understanding, open questions, and conclusions from experiments.
 - When one topic spans distinct phases, label them explicitly as `训练阶段`, `运行阶段`, and where needed `两阶段共同`. Do not interleave tokenizer training, LLM training, model inference, and generation decoding without first stating which phase and system layer is being discussed.
 - Keep the root learning map `学习主页.md` updated when adding a major topic.
@@ -38,12 +39,13 @@ Help a non-specialist user understand the path from large language models to rea
 
 - The Obsidian file tree must reflect the visible knowledge hierarchy. Do not change only a note heading when the agreed concept name or hierarchy has changed; rename the corresponding folder or file when appropriate.
 - Organize content from broad to narrow: learning module → mechanism section → topic system → stable subsection → atomic concept note.
-- Prefix ordered module and section folders with their outline number, such as `01-LLM`, `01-基础结构与计算机制`, and `1.1-Tokenizer文本离散化系统`.
+- Prefix only folders whose visible order matters with a two-digit local order, such as `01-LLM`, `01-基础结构与计算机制`, `01-Tokenizer文本离散化系统`, and `02-Embedding向量表示`. Each folder number describes its order among its siblings, not its complete ancestry.
 - Name a topic folder after the highest-level object, mechanism, or system being studied, followed by its role when clarification is useful. Prefer `Tokenizer文本离散化系统` over a loose collection name such as `文本离散化与Token`.
-- Give each topic folder one numbered entry note ending in `概览`, such as `1.1-Tokenizer文本离散化系统概览.md`. The folder expresses expandable hierarchy; the clearly named overview note owns the topic map, learning order, progress, concept boundaries, and links to subsection notes.
-- Use dotted hierarchical numbering rather than compressed numbering: `1.1.1`, `1.1.1.1`, and so on; do not use ambiguous forms such as `1.11` or `1.111`.
-- Represent each stable first-level subdivision of a topic as a numbered subfolder with an overview note, such as `1.1.1-Token/1.1.1-Token概览.md`. Number atomic notes beneath it, such as `1.1.1.1-为什么模型需要Token.md`.
-- Name atomic notes after one core concept or one core question. Their names must remain readable in Obsidian's file explorer while their numeric prefixes preserve learning order.
+- Give each topic folder one semantically named entry note ending in `概览`, such as `Tokenizer文本离散化系统概览.md`. The folder expresses expandable hierarchy; the clearly named overview note owns the topic map, reading order, progress, concept boundaries, and links to subsection notes.
+- Do not use ancestry-encoded dotted numbering such as `1.1`, `1.1.1`, or `1.4.2.4.3` in folder names, filenames, headings, Wikilink labels, or frontmatter section fields.
+- Represent each stable subdivision that owns several notes as a locally numbered subfolder with a semantic overview note, such as `01-Token/Token概览.md` and `02-Vocabulary与Token ID/Vocabulary与Token ID概览.md`.
+- Name atomic notes directly after one core concept or one core question, such as `为什么模型需要Token.md`. Keep their reading sequence in the parent overview note instead of encoding the entire sequence in every filename.
+- Do not add a numeric prefix to a folder merely because it is nested. Add one only when sibling order conveys a curriculum or mechanism sequence; otherwise use the semantic name directly.
 - Do not create a filesystem level for every minor conceptual distinction. Create a subfolder only for a stable subsection that owns multiple concepts or is expected to grow; express smaller relationships in its entry note with `[[Wikilinks]]`.
 - Classify concepts by their actual role before placing them in an outline. In particular, distinguish: object, resource, output, representation route, algorithm, implementation tool, and downstream effect. Do not present neighboring categories as parent-child relationships. For example, Token is an object; Vocabulary is a resource; Token ID is an output representation; BPE, WordPiece, and Unigram are methods; tiktoken and SentencePiece are tools or implementations.
 - Distinguish system structure from learning order. The system outline should be technically accurate, while the reading sequence should progress from observable input/output and concrete examples toward internal mechanisms.

@@ -1,0 +1,74 @@
+---
+type: topic-index
+module: 1
+status: complete
+audience: non-specialist
+parent: "[[01-LLM/01-基础结构与计算机制/基础结构与计算机制大纲]]"
+previous: "[[Embedding向量表示概览]]"
+next: "[[Transformer概览]]"
+tags: [llm, position, rope, alibi]
+---
+
+# Position 位置机制
+
+> [!goal]
+> 理解模型为什么必须获得顺序和距离信息，以及 Absolute Position、RoPE 和 ALiBi 分别把这些信息放到哪里。
+
+## 与 Embedding 的连接
+
+Embedding 告诉模型每个位置“是什么 Token”，但相同 Token 放在不同位置时，初始 Token Embedding 本身不自动说明它排在第几位。
+
+```text
+Token Embedding → 内容身份的初始表示
+Position        → 顺序、位置或相对距离信息
+```
+
+## 子结构与学习顺序
+
+1. [[为什么必须表示顺序|为什么必须表示顺序]]
+2. [[Absolute-Position-Embedding|Absolute Position Embedding]]
+3. [[RoPE的作用位置与直觉|RoPE 的作用位置与直觉]]
+4. [[ALiBi的作用位置与直觉|ALiBi 的作用位置与直觉]]
+5. [[三类位置机制对比|三类位置机制对比]]
+
+## 三种机制的结构位置
+
+```text
+Absolute Position Embedding
+→ 通常与输入 Token Embedding 结合
+
+RoPE
+→ 作用于 Attention 的 Q 和 K
+
+ALiBi
+→ 给 Attention Score 加入与相对距离相关的偏置
+```
+
+因此不能用“给 Token 向量加一个位置向量”统一解释所有位置机制。
+
+## 一个简单例子
+
+```text
+小明帮助小红
+小红帮助小明
+```
+
+两句话包含相同的几个词，但顺序改变后，谁帮助谁也发生变化。位置机制使后续 Transformer 有条件区分这种顺序关系。
+
+## 本专题边界
+
+- 本节讲位置机制为什么存在、作用在哪里。
+- RoPE 的旋转矩阵推导不进入必读主线。
+- Q、K、Attention Score 的完整计算进入 [[Causal-Self-Attention概览]]。
+- 长上下文外推和运行优化进入后续运行与评估模块。
+
+## 完成标准
+
+完成后应能：
+
+1. 解释为什么序列排列本身不等于模型已经利用了顺序；
+2. 区分绝对位置和相对距离；
+3. 指出 Absolute Position、RoPE 和 ALiBi 的主要作用位置；
+4. 说明 Position 与 Causal Mask 不是同一机制。
+
+下一专题：[[Transformer概览|Transformer]]。

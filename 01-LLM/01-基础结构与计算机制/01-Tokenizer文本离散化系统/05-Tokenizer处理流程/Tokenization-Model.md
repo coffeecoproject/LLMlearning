@@ -1,0 +1,54 @@
+---
+type: concept
+module: 1
+status: complete
+audience: non-specialist
+parent: "[[Tokenizer处理流程概览]]"
+previous: "[[Pre-tokenization]]"
+next: "[[Special-Token与Post-processing]]"
+tags: [llm, tokenizer, bpe, wordpiece, unigram]
+---
+
+# Tokenization Model
+
+## 一句话理解
+
+> Tokenization Model 加载训练阶段固定的词表和规则，把规范化、预切分后的文本片段变成最终普通 Token。
+
+## 它在完整流程中的位置
+
+```text
+文本
+→ Normalization
+→ Pre-tokenization
+→ 基础单位
+→ Tokenization Model
+→ 普通 Token
+```
+
+## BPE 使用阶段
+
+假设已经有：
+
+```text
+苹 + 果 → 苹果
+苹果 + 汁 → 苹果汁
+```
+
+新输入 `苹 | 果 | 汁` 按固定优先级合并为 `苹果汁`。这里不重新训练规则，详见 [[BPE]]。
+
+## WordPiece 与 Unigram
+
+WordPiece 使用已训练词表上的切分策略；Unigram 比较可能切分路径的整体分数。它们与 BPE 的训练和编码依据不同，但在流水线中承担相同角色：把片段变成词表内 Token。
+
+## 输出还不是模型向量
+
+这一阶段输出的是离散 Token。之后还要经过特殊 Token 处理和 Vocabulary Lookup 才得到 Token ID，再由模型 Embedding 变成向量。
+
+## 理解检查
+
+1. Tokenization Model 使用的是临时规则还是固定规则？
+2. 它的输出为什么还不是 Embedding？
+3. BPE、WordPiece、Unigram 在流水线中承担什么共同职责？
+
+下一篇：[[Special-Token与Post-processing|Special Token 与 Post-processing]]。

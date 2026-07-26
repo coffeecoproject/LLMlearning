@@ -1,0 +1,149 @@
+---
+type: concept
+module: 1
+status: complete
+audience: non-specialist
+parent: "[[Token-Embedding概览]]"
+previous: "[[Embedding-Matrix]]"
+next: "[[形状词表规模与参数量]]"
+tags: [llm, embedding, lookup, input]
+---
+
+# Embedding Lookup
+
+> [!summary]
+> Embedding Lookup 就是把每个 Token ID 当作行索引，从 Embedding Matrix 取出对应向量，并按原序列顺序排列起来。
+
+## 单个 ID 怎样查表
+
+继续使用示意矩阵：
+
+```text
+ID 0 → [ 0.1,  0.2, -0.3,  0.4]
+ID 1 → [-0.5,  0.6,  0.2, -0.1]
+ID 2 → [ 0.8, -0.7,  0.3,  0.5]
+```
+
+输入 ID 是 `2`：
+
+```text
+Embedding Lookup(2)
+→ 读取 Embedding Matrix 第 2 行
+→ [0.8, -0.7, 0.3, 0.5]
+```
+
+> [!note]
+> 行号从 0 还是 1 开始属于实现约定；示例沿用常见的从 0 开始索引。全部数值均为教学示意。
+
+Lookup 不是在矩阵里搜索“哪一行含义最像”，也不是计算 Token ID 与每行的距离。ID 已经直接指定了目标行。
+
+## 一串 ID 怎样查表
+
+假设输入是：
+
+```text
+input_ids = [2, 0, 2]
+```
+
+逐个查表：
+
+```text
+ID 2 → [ 0.8, -0.7,  0.3, 0.5]
+ID 0 → [ 0.1,  0.2, -0.3, 0.4]
+ID 2 → [ 0.8, -0.7,  0.3, 0.5]
+```
+
+按输入顺序排列：
+
+```text
+[
+  [0.8, -0.7,  0.3, 0.5],
+  [0.1,  0.2, -0.3, 0.4],
+  [0.8, -0.7,  0.3, 0.5]
+]
+```
+
+输出形状为：
+
+```text
+[sequence_length, hidden_size]
+= [3, 4]
+```
+
+## 同一个 ID 为什么先得到相同向量
+
+示例中 ID `2` 出现两次，两次都读取同一矩阵行，因此在 Embedding Lookup 刚完成时，得到的 Token Embedding 相同。
+
+但两个位置不同，后续位置机制和上下文计算会让它们逐渐形成不同 Hidden State：
+
+```text
+相同 Token ID
+→ 相同初始 Token Embedding
+→ 不同位置、不同上下文
+→ 后续 Hidden State 可以不同
+```
+
+## Lookup 是复制整行吗
+
+概念上可以说“取出对应行”。底层实现可能使用高效索引、Gather 等操作组织张量，不需要为理解主线区分是物理复制还是引用后再生成计算结果。
+
+重要的是它在数学和功能上等价于按 ID 选择矩阵行。
+
+## One-hot 乘矩阵与 Lookup 的关系
+
+如果把 ID `2` 写成 One-hot：
+
+```text
+[0, 0, 1, 0, 0]
+```
+
+它与 Embedding Matrix 相乘，也会选出第 2 行。Lookup 可以理解为直接执行这个选择，避免显式创建巨大而稀疏的 One-hot 向量。
+
+这是可选理解，不需要掌握矩阵乘法公式。
+
+## Lookup 属于共同结构，不在这里切换阶段
+
+无论后续用于普通运行还是训练，输入端都需要执行：
+
+```text
+Token ID → 读取对应行 → 参与前向计算
+```
+
+本篇到此停止，不继续讲后面的阶段差异：
+
+- 普通运行怎样继续计算：[[训练完成后怎样使用Embedding]]；
+- 训练怎样更新矩阵参数：[[训练怎样塑造Embedding]]。
+
+所以 Lookup 本身不是训练，也不是 Runtime 调度；它只是模型输入端的取值操作。
+
+## Lookup 到哪里结束
+
+本篇的链路到初始表示为止：
+
+```text
+input_ids
+→ Embedding Lookup
+→ 初始 Token Embedding 张量
+```
+
+尚未发生：
+
+- Attention 的上下文混合；
+- Hidden State 的逐层变化；
+- 下一个 Token 的选择；
+- Tokenizer decode。
+
+## 常见误解
+
+- **“Lookup 会搜索语义最接近的向量。”** 它按 ID 直接定位行。
+- **“同一个 Token 出现两次，模型内部始终完全相同。”** 初始 Embedding 相同，后续上下文表示可以不同。
+- **“只有训练阶段才 Lookup。”** 训练和运行都要把 ID 转为向量。
+- **“Lookup 会修改 Embedding Matrix。”** 读取操作本身不等于参数更新。
+
+## 理解检查
+
+1. 输入 `[3, 1, 3]` 时，Lookup 会按什么顺序取行？
+2. 为什么两个 ID `3` 的初始向量通常相同？
+3. 训练和运行都执行 Lookup，它们真正的差异发生在哪里？
+
+下一篇：[[形状词表规模与参数量|形状、词表规模与参数量]]。

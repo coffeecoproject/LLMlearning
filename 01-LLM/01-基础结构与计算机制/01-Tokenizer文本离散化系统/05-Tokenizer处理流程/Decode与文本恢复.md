@@ -1,0 +1,64 @@
+---
+type: concept
+module: 1
+status: complete
+audience: non-specialist
+parent: "[[Tokenizer处理流程概览]]"
+previous: "[[Vocabulary-Lookup与输入整理边界]]"
+next: "[[可逆性与边界]]"
+tags: [llm, tokenizer, decode, utf-8]
+---
+
+# Decode 与文本恢复
+
+## 一句话理解
+
+> Decode 查找 Token ID 对应的 Token 或字节片段，按顺序连接并执行解码规则，最终产生可读文本。
+
+## 基本链路
+
+```text
+Token IDs
+→ Vocabulary 反向查找
+→ Token 或字节片段
+→ 按顺序拼接
+→ 处理空格与边界标记
+→ UTF-8 解码（如果需要）
+→ 文本
+```
+
+## 文本片段示意
+
+```text
+[105, 8621, 12876]
+→ [我] [喜欢] [苹果]
+→ 我喜欢苹果
+```
+
+## 为什么单个 Token 可能无法独立显示？
+
+Byte-level Tokenizer 的一个 Token 可能只包含某个 UTF-8 字符的一部分字节。单独解码会形成无效或不完整文本；与相邻 Token 的字节拼接后才能恢复完整字符。
+
+```text
+Token A：字符字节的前半段
+Token B：剩余字节
+A + B → 完整 UTF-8 → 可读字符
+```
+
+因此“每个 Token 都对应一段独立可读文字”并不成立。
+
+## 特殊 Token 怎样处理？
+
+解码 API 常允许跳过特殊 Token，但是否跳过、跳过哪些，取决于参数和配置。调试模型协议时，隐藏特殊 Token 可能让人看不到真实边界。
+
+## Decode 不等于模型生成
+
+LLM 负责预测 Token ID；Decoder 只把已经产生的 ID 恢复为文本。Decoder 不判断答案是否正确，也不修复推理错误。
+
+## 理解检查
+
+1. 为什么 Byte-level 解码通常应处理完整 Token 序列？
+2. `skip_special_tokens` 可能隐藏什么信息？
+3. 生成与解码分别由谁负责？
+
+下一篇：[[可逆性与边界|可逆性与边界]]。
