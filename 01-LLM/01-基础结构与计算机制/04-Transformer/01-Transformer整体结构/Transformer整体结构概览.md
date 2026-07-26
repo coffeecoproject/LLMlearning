@@ -14,6 +14,9 @@ tags: [llm, transformer, block, decoder-only]
 > [!summary]
 > Transformer 是 LLM 用来反复更新整条 Token 序列表示的模型主体；每个 Block 通过 Attention、FFN、Residual 和 Normalization 分工协作，产生下一层 Hidden States。
 
+> [!info] 两阶段共同
+> 这套 Block 前向结构在 LLM 训练和运行时都会经过。训练时参数可在反向传播后更新；普通运行时参数固定，Hidden States 仍会随当前输入逐层重新计算。
+
 ## 为什么 Embedding 后还需要 Transformer
 
 Embedding 给每个 Token 位置一个初始向量，但它主要来自该 Token 的 ID。仅靠初始向量，模型还不知道“苹果”在当前句子中指水果还是公司，也没有充分组合句子中的条件、指代和关系。

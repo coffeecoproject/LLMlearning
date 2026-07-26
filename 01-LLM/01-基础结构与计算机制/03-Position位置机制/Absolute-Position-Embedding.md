@@ -68,6 +68,12 @@ Learned Position Embedding
 
 两者都表达绝对位置，但一个通过训练学习数值，一个使用固定规则。不能把 Absolute Position Embedding 简化为只有一种实现。
 
+> [!example] LLM 训练阶段
+> Learned Position Embedding 的向量可以随模型参数一起更新；固定 Sinusoidal Position Encoding 没有同类可学习位置表，但它产生的位置表示仍参与前向计算。
+
+> [!example] LLM 运行阶段
+> 模型根据 Position ID 查找训练后的位置向量，或按固定公式生成位置值。普通运行不会为新 Prompt 重新训练位置表。
+
 ## Learned Position Embedding 的形状
 
 如果模型最多预留 `max_position_embeddings` 个位置，每个位置宽度为 `hidden_size`，可学习位置矩阵常可理解为：

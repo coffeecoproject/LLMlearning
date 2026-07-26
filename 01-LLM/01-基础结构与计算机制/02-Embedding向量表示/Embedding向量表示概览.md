@@ -29,6 +29,11 @@ Token ID 虽然是整数，但只是词表索引。ID `10001` 不比 `10000` “
 > [!note]
 > 上述 ID 仅为教学示意，不属于真实模型。
 
+## 阶段标注
+
+> [!info] 两阶段共同
+> Embedding Lookup 是 LLM 前向计算的一部分：训练和运行都会根据 Token ID 取出对应向量。训练阶段允许误差信号更新 Embedding Matrix；普通运行阶段通常只读取已经训练好的矩阵，不会因为一次聊天自动改写它。
+
 ## 子结构与学习顺序
 
 1. [[向量基础概览|向量基础]]：只学习理解 Embedding 所需的向量、维度、形状与相似性直觉。
@@ -75,8 +80,8 @@ Embedding Matrix 的形状是：
 
 - Position 不再混在 Embedding 中，独立进入 [[Position位置机制概览]]。
 - Attention、FFN、Residual 与 Norm 进入 [[Transformer概览]]。
-- Embedding 在训练中怎样更新，进入训练模块。
-- Batch、Padding、运行时张量组织，进入普通运行模块。
+- Embedding 参数在训练中怎样被 Loss 和梯度更新，进入训练模块；这里仍保留“训练形成、运行读取”的必要边界。
+- Batch 与 Padding 可能同时出现在训练和运行中；训练 Batch 怎样影响参数更新、运行 Batch 怎样合并用户请求，分别进入对应阶段模块。
 
 ## 完成标准
 

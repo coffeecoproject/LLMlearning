@@ -14,6 +14,9 @@ tags: [llm, residual, layernorm, rmsnorm]
 > [!summary]
 > Residual Connection 为原有表示保留直接通路，Normalization 控制每层数据的数值尺度；二者帮助深层 Transformer 稳定传递和更新信息。
 
+> [!info] 两阶段共同
+> Residual 与 Normalization 都属于 Block 前向结构，训练和运行时都会计算。Norm 中的可学习尺度参数若存在，会在训练阶段更新、普通运行阶段固定读取；训练稳定性原因和梯度传播细节留到训练模块。
+
 计划展开：Residual Connection、为什么不能只保留子层新结果、LayerNorm、RMSNorm、Pre-Norm 与 Post-Norm 的结构区别。
 
 数学仅使用小向量展示“旧表示 + 新增量”和简单尺度直觉，不展开统计推导。

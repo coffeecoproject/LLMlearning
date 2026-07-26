@@ -14,6 +14,9 @@ tags: [llm, ffn, mlp, swiglu, moe]
 > [!summary]
 > FFN 在每个 Token 位置上独立使用同一组参数变换表示；Attention 负责位置之间交换信息，FFN 负责进一步处理每个位置已经汇集到的特征。
 
+> [!info] 两阶段共同
+> Dense FFN 或 MoE FFN 的前向路径在训练和运行时都会执行。训练阶段会更新 FFN、Router 与 Expert 参数，并可能加入负载均衡目标；运行阶段固定这些参数，但仍要为当前 Token 选择并执行相应计算路径。部署通信和请求调度属于运行模块。
+
 ## 计划结构
 
 1. 为什么 Attention 后仍需要 FFN；

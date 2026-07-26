@@ -4,7 +4,7 @@ module: 1
 status: complete
 audience: non-specialist
 parent: "[[从匹配强弱到信息权重概览]]"
-previous: "[[为什么必须排除未来位置]]"
+previous: "[[为什么运行时仍然保持因果可见性]]"
 next: "[[从Score到Weight的完整流程]]"
 tags: [llm, attention, softmax, attention-weight]
 ---

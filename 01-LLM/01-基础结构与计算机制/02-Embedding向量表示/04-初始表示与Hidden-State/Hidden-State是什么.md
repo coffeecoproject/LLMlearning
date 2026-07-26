@@ -14,6 +14,9 @@ tags: [llm, hidden-state, contextual-representation]
 > [!summary]
 > Hidden State 是某个 Token 位置在模型某一层计算后的当前向量表示；它会随输入上下文、所在位置和模型层数而变化。
 
+> [!info] 两阶段共同
+> 训练和运行的每次前向计算都会产生 Hidden States。它们是随当前输入变化的临时数据；训练阶段可能进一步根据 Loss 更新产生这些状态的模型参数，但不会把本次 Hidden States 当成新的永久权重保存。
+
 ## 从初始表示到中间状态
 
 假设一条序列有 3 个 Token，`hidden_size = 4`。进入第一层之前，每个位置都有一个四维初始表示：

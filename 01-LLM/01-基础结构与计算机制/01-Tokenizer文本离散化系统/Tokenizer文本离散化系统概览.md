@@ -33,6 +33,25 @@ Token ID
 
 因此，本专题不会提前深入 Embedding、Attention、采样或参数训练。
 
+## 阶段地图
+
+```text
+【Tokenizer 构建阶段】
+训练语料与人工配置
+→ 产生 Vocabulary、切分规则、片段分数和特殊 Token 配置
+
+【LLM 训练阶段】
+使用已经固定的 Tokenizer
+→ 把训练文本编码成 Token ID
+→ 再由 LLM 学习模型参数
+
+【LLM 运行阶段】
+使用同一套固定 Tokenizer
+→ 编码用户输入，并把生成出的 Token ID 解码为文本
+```
+
+这里的“Tokenizer 使用阶段”会同时出现在 LLM 训练和 LLM 运行中。使用 Tokenizer 不等于重新训练 Tokenizer，也不等于更新 LLM 参数。
+
 ## 必读主线
 
 1. [[Token概览|Token]]：先理解为什么需要 Token，以及 Token 到底是什么。

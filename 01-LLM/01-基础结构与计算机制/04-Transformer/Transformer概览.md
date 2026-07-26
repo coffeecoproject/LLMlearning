@@ -40,6 +40,15 @@ Transformer 不是 Attention 的另一个名字。Attention 只是 Block 中负�
 
 不同模型可能采用 Pre-Norm、Post-Norm、并行子层等变体，因此上图表达职责关系，不假设所有实现的代码顺序完全一致。
 
+## 阶段标注
+
+> [!info] 两阶段共同
+> Transformer Block 的 Attention、Residual、Normalization 和 FFN 前向计算，在 LLM 训练与运行阶段都会执行。训练阶段还会根据 Loss 计算梯度并更新参数；普通运行阶段使用固定参数，并可能增加 KV Cache、逐 Token 解码和服务调度等运行机制。
+
+因此“某组权重是训练得到的”和“使用这组权重完成一次前向计算”是两件事，不能把整个 Transformer 误归为训练专属流程。
+
+“两阶段共同”表示前向主干相同，不代表实现细节逐项完全一致。例如某些架构会在训练时启用 Dropout、在普通运行时关闭；不同阶段的 Batch 组织和内存策略也可能不同。
+
 ## 子结构与学习顺序
 
 1. [[Transformer整体结构概览|Transformer 整体结构]]：先认识 Block 中有哪些组件以及数据怎样流动。

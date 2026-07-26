@@ -15,6 +15,9 @@ tags: [llm, tokenizer, training, encoding]
 
 > 训练 Tokenizer 是人设定目标后，由计算机程序从大量文本中自动生成词表和切分所需数据；使用 Tokenizer 则是加载这些固定结果，把新文本转换成 Token ID。
 
+> [!info] 三个阶段不要压成两个
+> `Tokenizer 构建阶段`负责产生词表和规则。此后同一套 Tokenizer 会被使用两次：在`LLM 训练阶段`编码训练语料，在`LLM 运行阶段`编码用户输入或解码模型输出。后两次通常都只是使用 Tokenizer，不会重新学习词表。
+
 ## 1. “训练”这个词为什么容易误解？
 
 LLM 训练通常让人想到神经网络、GPU、反向传播和数十亿参数。但 Tokenizer 训练通常不是这套过程。
