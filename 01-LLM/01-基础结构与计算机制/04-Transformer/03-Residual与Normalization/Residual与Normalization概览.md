@@ -1,7 +1,7 @@
 ---
 type: subsection-index
 module: 1
-status: planned
+status: complete
 audience: non-specialist
 parent: "[[Transformer概览]]"
 previous: "[[Causal-Self-Attention概览]]"
@@ -12,11 +12,69 @@ tags: [llm, residual, layernorm, rmsnorm]
 # Residual 与 Normalization
 
 > [!summary]
-> Residual Connection 为原有表示保留直接通路，Normalization 控制每层数据的数值尺度；二者帮助深层 Transformer 稳定传递和更新信息。
+> Residual 管理“旧表示与子层变化怎样连接”，Normalization 管理“向量数值尺度怎样整理”；二者共同组织 Transformer Block 的数据流。
+
+## 按学习目标选择入口
+
+### 只看框架
+
+阅读：[[Residual与Normalization框架速览概览|Residual 与 Normalization 一页看懂]]。
+
+只需掌握：
+
+```text
+Residual → 保留主干并加入变化
+Normalization → 调整数值尺度
+```
+
+### 理解基础机制
+
+1. [[Residual基础机制概览|Residual 基础机制]]：理解 `x + F(x)` 及两次 Residual；
+2. [[Normalization基础机制概览|Normalization 基础机制]]：理解 LayerNorm、RMSNorm、Pre/Post-Norm 和 Final Norm。
+
+### 简单数学与真实配置
+
+- [[Normalization小数字示例|Normalization 小数字示例]]使用一个三维向量做演示；
+- [[RMSNorm是什么|RMSNorm]]中使用 Qwen3-8B 官方配置观察 `rms_norm_eps` 与实际结构。
+
+这些不是框架路线的前置条件。
+
+## Block 中的位置
+
+```text
+Block 输入
+→ Norm → Attention → Residual
+→ Norm → FFN       → Residual
+→ Block 输出
+```
+
+这是常见 Pre-Norm 串行结构的简化图。Post-Norm、并行子层和其他 Norm 变体会改变具体排列。
+
+## 概念分类
+
+```text
+Residual
+→ 连接与相加关系
+
+LayerNorm / RMSNorm
+→ Normalization 的计算规则
+
+Pre-Norm / Post-Norm
+→ Norm 在子层与 Residual 附近的放置位置
+
+Final Norm
+→ Block 堆叠结束、LM Head 之前的归一化
+```
+
+## 阶段边界
 
 > [!info] 两阶段共同
-> Residual 与 Normalization 都属于 Block 前向结构，训练和运行时都会计算。Norm 中的可学习尺度参数若存在，会在训练阶段更新、普通运行阶段固定读取；训练稳定性原因和梯度传播细节留到训练模块。
+> Residual 与 Normalization 前向计算在训练和运行时都会发生。训练阶段还会更新 Norm 的可学习参数并涉及梯度稳定性；普通运行阶段只使用固定参数。
 
-计划展开：Residual Connection、为什么不能只保留子层新结果、LayerNorm、RMSNorm、Pre-Norm 与 Post-Norm 的结构区别。
+## 当前进度
 
-数学仅使用小向量展示“旧表示 + 新增量”和简单尺度直觉，不展开统计推导。
+- [x] [[Residual与Normalization框架速览概览|框架速览]]
+- [x] [[Residual基础机制概览|Residual 基础机制]]
+- [x] [[Normalization基础机制概览|Normalization 基础机制]]
+
+下一节：[[FFN概览|FFN / MLP]]。

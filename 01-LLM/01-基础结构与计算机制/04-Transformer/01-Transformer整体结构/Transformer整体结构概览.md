@@ -4,7 +4,7 @@ module: 1
 status: complete
 audience: non-specialist
 parent: "[[Transformer概览]]"
-previous: "[[三类位置机制对比]]"
+previous: "[[Transformer框架速览]]"
 next: "[[Causal-Self-Attention概览]]"
 tags: [llm, transformer, block, decoder-only]
 ---
@@ -48,6 +48,32 @@ Transformer Block ≠ 只有 Attention
 ```
 
 Attention 负责“位置之间怎样交换”，FFN 负责“每个位置内部怎样继续处理”。
+
+## 组件是怎样嵌套的
+
+Residual 和 Normalization 不是放在整个 Transformer 堆叠之外，而是在每个 Block 中组织 Attention 与 FFN 的数据流：
+
+```text
+Transformer 主体
+├── Block 1
+│   ├── Attention 子层 + 对应 Residual / Norm
+│   └── FFN 子层       + 对应 Residual / Norm
+├── Block 2
+│   ├── Attention 子层 + 对应 Residual / Norm
+│   └── FFN 子层       + 对应 Residual / Norm
+└── ……
+```
+
+概念上可以这样分类：
+
+| 对象 | 位于哪里 | 做什么 |
+|---|---|---|
+| Attention | Block 内的计算子层 | 在不同 Token 位置之间汇集信息 |
+| FFN | Block 内的计算子层 | 处理每个位置当前拥有的特征 |
+| Residual | Block 内、围绕子层的连接关系 | 保留主干并叠加子层变化 |
+| Normalization | Block 内、位于子层前后之一 | 调整数值尺度 |
+
+Residual 经常在结构图中画成一条弧线或旁路，所以它更像“连接方式”，而不是一个与 Attention 同类的内容变换器。
 
 ## 一条简化数据流
 

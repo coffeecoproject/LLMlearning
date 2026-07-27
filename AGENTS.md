@@ -10,21 +10,66 @@ Help a non-specialist user understand the path from large language models to rea
 
 - Follow the seven-module learning structure defined in `00-总纲/AI 智能系统学习总纲.md`. The current content-development phase starts with large language models before later modules are expanded.
 - Explain LLMs thoroughly for a non-specialist audience. Do not assume machine-learning, advanced mathematics, or neural-network background.
-- Prefer progressive depth: intuition first, then mechanism, then an accurate technical model, with mathematics in an optional section.
+- Use the learning-depth model below. A topic may be complete at the framework level without forcing the reader through parameters, mathematics, implementation, or architecture variants.
 - Never trade accuracy for a simple analogy. Clearly label where an analogy stops matching the real mechanism.
 - Define every new technical term on first use and avoid unexplained acronym chains.
+
+## Learning depth and reading paths
+
+Organize substantial topics as progressive reading layers. These are curriculum layers, not components of the model itself.
+
+### Level 0: framework overview
+
+- Serve readers who only want to understand the overall LLM architecture.
+- Answer only the essential questions: where the concept is, what enters it, what it does, why it is needed, what it outputs, and what it is not.
+- Use one compact flow and, when helpful, one concrete example.
+- Do not require formulas, tensor shapes, parameter counts, model configuration fields, research papers, or architecture variants.
+- End with a clear stopping point: a reader who can explain the framework may continue to the next major component without opening deeper notes.
+
+### Level 1: basic mechanism
+
+- Explain the causal process step by step and connect it to upstream and downstream components.
+- Define the key terms needed to reconstruct the mechanism rather than memorize a slogan.
+- Use a small worked example when it materially improves understanding.
+- Distinguish the concept from its nearest neighboring concepts and explain what would fail without it.
+
+### Level 2: parameters and technical depth
+
+- Cover tensor shapes, learned parameters, configuration fields, parameter scale, and simple numerical calculations.
+- Keep mathematics optional and use small numbers before symbolic notation.
+- Do not make this layer a prerequisite for readers who only need the framework or basic mechanism.
+
+### Level 3: variants, evidence, and implementation boundaries
+
+- Cover modern architecture variants, open-model configurations, research interpretations, and relevant training or runtime implementation details.
+- Use primary sources and separate published facts, inference, and unknown information.
+- Keep model internals distinct from inference runtimes, serving systems, Agent frameworks, and product behavior.
+
+### Applying the layers
+
+- Every major topic overview must offer explicit routes such as `只看框架`, `理解机制`, and `继续深入`.
+- Never label all depth layers as required reading. Required reading must be relative to a stated learning goal.
+- Judge completeness within a layer: framework completeness does not require mathematical or implementation completeness.
+- Not every topic needs four physical subfolders. Create a layer folder only when it owns several notes or is expected to grow; otherwise express the layers as sections and links in the topic overview.
+- Do not repeat the full explanation at every layer. Give each concept one canonical detailed note; higher-level notes summarize and link to it.
 
 ## Note conventions
 
 - Write learning notes primarily in Chinese; retain standard English technical terms where useful.
 - Use Obsidian `[[Wikilinks]]` to connect LLM concepts, mechanisms, experiments, and misconceptions.
 - Prefer small, focused concept notes over long unstructured transcripts.
-- Each teaching note should normally include: one-sentence understanding, why the concept exists, a concrete example, the real mechanism, common misconceptions, and a short comprehension check.
-- Separate essential reading from optional mathematical or implementation details.
+- Match each note to one learning layer and one note role. Do not force every note to contain every teaching element.
+- Across a complete topic, normally provide: a one-sentence understanding, why the concept exists, a concrete example, the real mechanism, adjacent relationships, common misconceptions, and a short comprehension check. Distribute these across the appropriate notes instead of repeating them in every note.
+- Separate framework reading, mechanism reading, and optional mathematical or implementation details visibly in both the topic overview and the file tree when separate folders are justified.
 - Atomic means one core question per note, not shallow coverage. Explain that question deeply enough that the user can reconstruct the causal chain without memorizing slogans.
-- For substantive concepts, cover these layers where applicable: prerequisite connection, intuitive entry, step-by-step mechanism, worked example, relationship to adjacent concepts, boundary cases, common misconceptions, optional technical detail, and comprehension exercises.
+- For substantive concepts, cover prerequisite connection, intuitive entry, step-by-step mechanism, worked example, adjacent relationships, boundary cases, common misconceptions, optional technical detail, and comprehension exercises across the topic as applicable. Do not turn this list into a mandatory template for every individual file.
 - Prefer causal explanations in prose over lists of facts. Explicitly answer “why this step is necessary” and “what would break without it.”
-- A concept is not complete merely because its definition was given. Continue until the user can distinguish it from neighboring concepts and predict its behavior in a new example.
+- A framework note is complete when the reader can place the concept in the system and explain its input, role, output, and boundary. A mechanism topic is complete when the reader can also distinguish it from neighboring concepts and predict its behavior in a new example.
+- Overview notes own the map, scope, learning routes, and progress. They should not duplicate the full content of their child notes.
+- Framework notes should remain compact and avoid introducing terms that are only needed by deeper layers.
+- Mechanism notes should prioritize causal explanation and one coherent example over many disconnected facts.
+- Parameter or mathematical notes must be visibly optional and must explain what each calculation helps the reader understand.
+- Reference notes may focus on evidence and source boundaries; review notes may focus on misconceptions and comprehension checks. They do not need to imitate the structure of a mechanism lesson.
 - When suitable, add an `开放模型观察` section using a precisely named open-weight model version.
 - Use primary sources for model settings: official model cards, official repositories, checked-in configs, or technical reports.
 - Separate published facts from inference and unknown information; record the source and verification date for version-sensitive settings.
@@ -44,6 +89,7 @@ Help a non-specialist user understand the path from large language models to rea
 - Give each topic folder one semantically named entry note ending in `概览`, such as `Tokenizer文本离散化系统概览.md`. The folder expresses expandable hierarchy; the clearly named overview note owns the topic map, reading order, progress, concept boundaries, and links to subsection notes.
 - Do not use ancestry-encoded dotted numbering such as `1.1`, `1.1.1`, or `1.4.2.4.3` in folder names, filenames, headings, Wikilink labels, or frontmatter section fields.
 - Represent each stable subdivision that owns several notes as a locally numbered subfolder with a semantic overview note, such as `01-Token/Token概览.md` and `02-Vocabulary与Token ID/Vocabulary与Token ID概览.md`.
+- When depth layers need their own folders, use clear local names such as `01-框架速览`, `02-基础机制`, `03-参数与深入`, and `04-扩展结构`. These folder names describe the reading depth, while the topic overview must still describe the technically accurate system structure.
 - Name atomic notes directly after one core concept or one core question, such as `为什么模型需要Token.md`. Keep their reading sequence in the parent overview note instead of encoding the entire sequence in every filename.
 - Do not add a numeric prefix to a folder merely because it is nested. Add one only when sibling order conveys a curriculum or mechanism sequence; otherwise use the semantic name directly.
 - Do not create a filesystem level for every minor conceptual distinction. Create a subfolder only for a stable subsection that owns multiple concepts or is expected to grow; express smaller relationships in its entry note with `[[Wikilinks]]`.
@@ -55,7 +101,9 @@ Help a non-specialist user understand the path from large language models to rea
 
 - Use small, concrete examples throughout the required reading, including Chinese text, English text, numbers, code, and Emoji when they reveal different model behavior.
 - Show the observable transformation first, then explain why it occurs and what mechanism produces it.
-- Do not make mathematical formulas a prerequisite for the main learning path. Put formulas, derivations, and implementation-level calculations in a clearly labeled optional section.
+- Do not add every example type to every note. Choose the smallest example that reveals the behavior under discussion.
+- Do not make mathematical formulas a prerequisite for framework or basic-mechanism reading. Put formulas, derivations, parameter calculations, and implementation-level details in a clearly labeled optional note or section.
+- Introduce a mathematical idea with small concrete numbers before symbolic notation. Include a calculation only when its result clarifies a structural relationship.
 - A simplified example must be labeled as illustrative when its tokens or IDs are invented. Never imply that illustrative Token IDs are values from a real model.
 
 ## Safety

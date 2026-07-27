@@ -9,126 +9,70 @@ tags: [llm, token, tokenizer]
 
 # Tokenizer 文本离散化系统
 
-> [!goal]
-> 理解开放世界中的文本怎样被转换成有限词表中的离散编号，以及这种转换为什么会影响模型的输入长度、计算效率和文本处理能力。
+> [!summary]
+> Tokenizer 位于原始文本与模型数值输入之间，负责把文本转换成 Token ID，并把生成出的 Token ID 解码回文字。
 
-## 本专题边界
+## 按学习目标选择入口
 
-本专题研究：
+### 只看框架
 
-```text
-原始文本
-→ Tokenizer
-→ Token
-→ Token ID
-```
+阅读：[[Tokenizer框架速览概览|Tokenizer 一页看懂]]。
 
-下一专题再研究：
+读完只需掌握：
 
 ```text
-Token ID
-→ Token Embedding
-→ Transformer 可计算的向量表示
+文字 → Token → Token ID
 ```
 
-因此，本专题不会提前深入 Embedding、Attention、采样或参数训练。
+以及 Tokenizer 构建与 Tokenizer 使用不是同一阶段。
 
-## 阶段地图
+### 理解基础机制
+
+进入：[[Tokenizer基础机制概览|Tokenizer 基础机制]]。
+
+这里解释 Token、Vocabulary、Token ID 和完整编码/解码流程。
+
+### 继续深入
+
+进入：[[Tokenizer方法与深入概览|Tokenizer 方法与深入]]。
+
+这里讨论文本表示路线、BPE、WordPiece、Unigram、工具实现及影响边界。
+
+## 系统结构
 
 ```text
-【Tokenizer 构建阶段】
-训练语料与人工配置
-→ 产生 Vocabulary、切分规则、片段分数和特殊 Token 配置
-
-【LLM 训练阶段】
-使用已经固定的 Tokenizer
-→ 把训练文本编码成 Token ID
-→ 再由 LLM 学习模型参数
-
-【LLM 运行阶段】
-使用同一套固定 Tokenizer
-→ 编码用户输入，并把生成出的 Token ID 解码为文本
+Tokenizer
+├── 处理对象：Token
+├── 使用资源：Vocabulary 与切分规则
+├── 输出表示：Token ID
+├── 表示路线：Word / Character / Subword / Byte
+├── 构建与切分方法：BPE / WordPiece / Unigram
+├── 编码与解码流程
+├── 软件与模型文件
+└── 对长度、效率和文本覆盖的影响
 ```
 
-这里的“Tokenizer 使用阶段”会同时出现在 LLM 训练和 LLM 运行中。使用 Tokenizer 不等于重新训练 Tokenizer，也不等于更新 LLM 参数。
-
-## 必读主线
-
-1. [[Token概览|Token]]：先理解为什么需要 Token，以及 Token 到底是什么。
-2. [[Vocabulary与Token ID概览|Vocabulary 与 Token ID]]：理解词表、Token 与整数编号之间的关系。
-3. [[文本表示路线概览|文本表示路线]]：比较单词、字符、子词与字节四条路线。
-4. [[词表构建与切分方法概览|词表构建与切分方法]]：理解 BPE、WordPiece 与 Unigram 的定位。
-5. [[Tokenizer处理流程概览|Tokenizer 处理流程]]：串起编码与解码的完整过程。
-6. 跳过可选工程观察，先读 [[影响与边界概览|影响与边界]]，完成概念闭环。
-
-## 可选工程观察
-
-[[工具与实现概览|工具与实现]]用于认识 tiktoken、SentencePiece、Hugging Face Tokenizers 和模型文件。它不属于文本处理主链中的新增步骤，也不是进入 Embedding 专题前必须掌握的内容。
-
-## 专题核心问题
+## 阶段边界
 
 ```text
-Tokenizer 为什么存在？
-→ 它处理的 Token 是什么？
-→ Vocabulary 和 Token ID 分别起什么作用？
-→ 文本可以按什么基本单位表示？
-→ BPE、WordPiece、Unigram 怎样构建和使用词表？
-→ 一次完整的编码与解码经历哪些步骤？
-→ 这些选择怎样影响实际模型？
+Tokenizer 构建阶段
+→ 产生 Vocabulary、规则、分数和特殊 Token 配置
+
+LLM 训练阶段
+→ 使用固定 Tokenizer 编码训练文本
+
+LLM 运行阶段
+→ 使用配套 Tokenizer 编码输入、解码输出
 ```
 
-## 概念层级
+Tokenizer 构建不是 LLM 参数训练；Tokenizer 使用也不是 Embedding 或 Transformer 计算。
 
-```text
-Tokenizer（完整系统）
-├── 01 处理的对象：Token
-├── 02 使用的资源与输出：Vocabulary 与 Token ID
-├── 03 采用的表示路线：单词 / 字符 / 子词 / 字节
-├── 04 可能采用的方法：BPE / WordPiece / Unigram
-├── 05 完整处理流程
-├── 06 具体工具或实现
-└── 07 影响与边界
-```
+## 当前内容
 
-这里最重要的纠正是：BPE、WordPiece 和 Unigram 不是 Token 的三种类型，而是构建词表和决定切分结果的不同方法。
+- [x] [[Tokenizer框架速览概览|框架速览]]
+- [x] [[Tokenizer基础机制概览|基础机制]]
+- [x] [[Tokenizer方法与深入概览|方法与深入]]
+- [x] [[工具与实现概览|工具与实现]]
+- [x] [[影响与边界概览|影响与复习]]
 
-## 本专题的讲解方式
-
-每个知识点优先通过例子理解，再进入真实机制。例如：
-
-```text
-输入文本：“我喜欢苹果🍎”
-→ 看它可能被切成哪些 Token
-→ 看每个 Token 怎样映射为 Token ID
-→ 换一个 Tokenizer，比较结果为什么不同
-→ 再解释背后的词表、表示路线和切分方法
-```
-
-主线不依赖复杂公式。只使用计数、乘法、长度和简单索引范围说明机制；矩阵推导、概率优化和实现细节不作为理解前提。
-
-## 完成标准
-
-完成本专题后，应当能够：
-
-1. 解释为什么神经网络不能直接把文字字符串当作数值张量计算；
-2. 说明 Token 为什么不等于单词或字符；
-3. 区分 Token、Token ID、Vocabulary 与 Tokenizer；
-4. 推演文本变成 Token ID 的基本流程；
-5. 解释有限词表如何覆盖开放文本；
-6. 比较字符级、单词级、子词级和字节级路线；
-7. 区分表示路线、切分算法与具体工具；
-8. 说明 Token 数量为什么影响上下文、计算量和成本；
-9. 解释为什么模型与 Tokenizer 必须配套。
-
-## 当前进度
-
-- [x] [[Token概览|Token]]
-- [x] [[Vocabulary与Token ID概览|Vocabulary 与 Token ID]]
-- [x] [[文本表示路线概览|文本表示路线]]
-- [x] [[词表构建与切分方法概览|词表构建与切分方法]]
-- [x] [[Tokenizer处理流程概览|Tokenizer 处理流程]]
-- [x] [[工具与实现概览|工具与实现（可选）]]
-- [x] [[影响与边界概览|影响与边界]]
-
-> [!note] 可选实践未阻塞专题完成
-> [[同一句文本的真实对比实验|真实对比实验]]已经给出实验规范，但尚未固定模型并运行。它属于后续开放模型观察，不影响当前概念主线完成。
+框架路线下一站：[[Embedding框架速览概览|Embedding 一页看懂]]。

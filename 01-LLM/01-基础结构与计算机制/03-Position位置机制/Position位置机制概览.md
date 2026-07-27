@@ -11,71 +11,58 @@ tags: [llm, position, rope, alibi]
 
 # Position 位置机制
 
-> [!goal]
-> 理解模型为什么必须获得顺序和距离信息，以及 Absolute Position、RoPE 和 ALiBi 分别把这些信息放到哪里。
+> [!summary]
+> Position 让模型计算能够利用 Token 的顺序与距离；不同位置方案可以作用在输入表示、Attention 的 Q/K 或 Attention Score。
 
-## 与 Embedding 的连接
+## 按学习目标选择入口
 
-Embedding 告诉模型每个位置“是什么 Token”，但相同 Token 放在不同位置时，初始 Token Embedding 本身不自动说明它排在第几位。
+### 只看框架
 
-```text
-Token Embedding → 内容身份的初始表示
-Position        → 顺序、位置或相对距离信息
-```
+阅读：[[Position框架速览|Position 一页看懂]]。
 
-## 子结构与学习顺序
-
-1. [[为什么必须表示顺序|为什么必须表示顺序]]
-2. [[Absolute-Position-Embedding|Absolute Position Embedding]]
-3. [[RoPE的作用位置与直觉|RoPE 的作用位置与直觉]]
-4. [[ALiBi的作用位置与直觉|ALiBi 的作用位置与直觉]]
-5. [[三类位置机制对比|三类位置机制对比]]
-
-## 三种机制的结构位置
+只需分清：
 
 ```text
-Absolute Position Embedding
-→ 通常与输入 Token Embedding 结合
-
-RoPE
-→ 作用于 Attention 的 Q 和 K
-
-ALiBi
-→ 给 Attention Score 加入与相对距离相关的偏置
+Embedding → 内容的初始表示
+Position  → 顺序和距离
+Mask      → 可见权限
 ```
 
-因此不能用“给 Token 向量加一个位置向量”统一解释所有位置机制。
+### 理解基础机制
 
-## 阶段标注
+阅读：
+
+1. [[为什么必须表示顺序]]；
+2. [[三类位置机制对比]]。
+
+先理解“为什么需要”和“三种方案作用在哪里”，不要求推导公式。
+
+### 继续深入
+
+按需阅读：
+
+1. [[Absolute-Position-Embedding|Absolute Position Embedding]]；
+2. [[RoPE的作用位置与直觉|RoPE 的作用位置与直觉]]；
+3. [[ALiBi的作用位置与直觉|ALiBi 的作用位置与直觉]]。
+
+具体旋转矩阵、长上下文缩放和外推评估不属于框架必读内容。
+
+## 系统结构
+
+```text
+位置机制
+├── 输入附近：Absolute Position Embedding
+├── Q/K 关系：RoPE
+└── Score 偏置：ALiBi
+```
+
+这是一张典型方案地图，不表示所有模型只能使用其中一种，也不表示三者构成连续流水线。
+
+## 阶段与边界
 
 > [!info] 两阶段共同
-> 位置机制属于模型前向结构，LLM 训练和运行时都要让 Attention 获得顺序或距离信息。若使用 Learned Position Embedding，其矩阵数值可在训练中更新、运行时固定读取；RoPE、固定正弦位置编码和 ALiBi 的规则本身通常不是逐次学习出的参数，但相应的位置运算仍会在前向计算中执行。
+> 位置运算在 LLM 训练和运行时都会参与前向计算。可学习位置参数在训练中更新、运行时固定；固定规则仍会在两个阶段执行。
 
-“运行时输入更长”不等于模型会在现场重新训练位置机制。超出训练长度后的表现还取决于训练范围、缩放方案、实现和评估，属于后续长上下文专题。
+真实模型能否可靠利用更长上下文，还取决于训练范围、缩放方案、Attention 架构和评估结果。
 
-## 一个简单例子
-
-```text
-小明帮助小红
-小红帮助小明
-```
-
-两句话包含相同的几个词，但顺序改变后，谁帮助谁也发生变化。位置机制使后续 Transformer 有条件区分这种顺序关系。
-
-## 本专题边界
-
-- 本节讲位置机制为什么存在、作用在哪里。
-- RoPE 的旋转矩阵推导不进入必读主线。
-- Q、K、Attention Score 的完整计算进入 [[Causal-Self-Attention概览]]。
-- 长上下文外推和运行优化进入后续运行与评估模块。
-
-## 完成标准
-
-完成后应能：
-
-1. 解释为什么序列排列本身不等于模型已经利用了顺序；
-2. 区分绝对位置和相对距离；
-3. 指出 Absolute Position、RoPE 和 ALiBi 的主要作用位置；
-4. 说明 Position 与 Causal Mask 不是同一机制。
-
-下一专题：[[Transformer概览|Transformer]]。
+框架路线下一站：[[Transformer框架速览|Transformer 一页看懂]]。

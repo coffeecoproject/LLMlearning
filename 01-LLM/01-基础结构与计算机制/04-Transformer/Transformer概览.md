@@ -1,105 +1,78 @@
 ---
 type: topic-index
 module: 1
-status: active
+status: complete
 audience: non-specialist
 parent: "[[01-LLM/01-基础结构与计算机制/基础结构与计算机制大纲]]"
 previous: "[[Position位置机制概览]]"
 next: "[[Output-Layer输出层概览]]"
-tags: [llm, transformer, attention, ffn]
+tags: [llm, transformer, attention, ffn, residual, normalization]
 ---
 
 # Transformer
 
-> [!goal]
-> 理解 Transformer Block 怎样让各位置交换上下文信息、处理各自表示并稳定地逐层更新 Hidden State。
+> [!summary]
+> Transformer 通过多层 Block 反复更新各 Token 位置的 Hidden State；Attention、FFN、Residual 和 Normalization 在每个 Block 内分工协作。
 
-## Transformer 在主线中的位置
+## 按学习目标选择入口
+
+### 只看整体框架
+
+阅读：[[Transformer框架速览|Transformer 一页看懂]]。
+
+然后按同样的框架路线依次阅读：
+
+1. [[Attention框架速览概览|Attention 一页看懂]]；
+2. [[Residual与Normalization框架速览概览|Residual 与 Normalization 一页看懂]]；
+3. [[FFN框架速览概览|FFN 一页看懂]]；
+4. [[Block堆叠框架速览概览|Block 堆叠一页看懂]]。
+
+### 理解基础机制
+
+1. [[Transformer整体结构概览|Transformer 整体结构]]；
+2. [[Attention基础机制概览|Attention 基础机制]]；
+3. [[Residual基础机制概览|Residual 基础机制]]；
+4. [[Normalization基础机制概览|Normalization 基础机制]]；
+5. [[FFN基础机制概览|FFN 基础机制]]；
+6. [[Block堆叠与Hidden-State流动概览|Block 堆叠与 Hidden State 流动]]；
+7. [[完整Transformer-Block串联复习概览|完整 Transformer Block 串联复习]]。
+
+### 继续深入
+
+- [[Attention扩展结构概览|Attention 扩展结构]]：MHA、GQA、MQA、MLA 的进一步比较；
+- [[FFN参数与深入概览|FFN 参数与深入]]与[[FFN扩展结构概览|FFN 扩展结构]]；
+- [[LayerNorm与RMSNorm对比|LayerNorm 与 RMSNorm 对比]]、[[Pre-Norm与Post-Norm|Pre-Norm 与 Post-Norm]]与[[Normalization小数字示例|小数字示例]]；
+- [[Block参数与边界概览|Block 参数与边界]]：层数、参数、阶段边界与开放模型观察。
+
+## 真实系统结构
 
 ```text
-Token ID
-→ Embedding
-→ Position
-→ 多层 Transformer Block
-→ Final Hidden States
-→ Final Norm
+Transformer 主体
+├── Block 1
+│   ├── Attention + Residual / Norm
+│   └── FFN       + Residual / Norm
+├── Block 2
+│   ├── Attention + Residual / Norm
+│   └── FFN       + Residual / Norm
+└── ……更多 Block
 ```
 
-Transformer 不是 Attention 的另一个名字。Attention 只是 Block 中负责位置间信息交换的一个子系统。
+学习顺序与系统结构不同：我们会分专题学习组件，但真实前向计算是在每个 Block 中反复组合它们。
 
-## 一个 Block 的非数学主线
-
-```text
-输入 Hidden States
-→ Causal Self-Attention：各位置有选择地汇集上下文
-→ Residual + Normalization：保留信息并稳定数据流
-→ FFN / MLP：分别处理每个位置内部的特征
-→ Residual + Normalization
-→ 输出更新后的 Hidden States
-```
-
-不同模型可能采用 Pre-Norm、Post-Norm、并行子层等变体，因此上图表达职责关系，不假设所有实现的代码顺序完全一致。
-
-## 阶段标注
+## 阶段边界
 
 > [!info] 两阶段共同
-> Transformer Block 的 Attention、Residual、Normalization 和 FFN 前向计算，在 LLM 训练与运行阶段都会执行。训练阶段还会根据 Loss 计算梯度并更新参数；普通运行阶段使用固定参数，并可能增加 KV Cache、逐 Token 解码和服务调度等运行机制。
+> Transformer 前向计算在 LLM 训练和运行时都会发生。训练阶段还会根据误差更新参数；普通运行阶段只使用固定参数计算当前 Hidden States。
 
-因此“某组权重是训练得到的”和“使用这组权重完成一次前向计算”是两件事，不能把整个 Transformer 误归为训练专属流程。
-
-“两阶段共同”表示前向主干相同，不代表实现细节逐项完全一致。例如某些架构会在训练时启用 Dropout、在普通运行时关闭；不同阶段的 Batch 组织和内存策略也可能不同。
-
-## 子结构与学习顺序
-
-1. [[Transformer整体结构概览|Transformer 整体结构]]：先认识 Block 中有哪些组件以及数据怎样流动。
-2. [[Causal-Self-Attention概览|Causal Self-Attention]]：理解上下文信息怎样被选择和汇集。
-3. [[Residual与Normalization概览|Residual 与 Normalization]]：理解信息保留和数值稳定。
-4. [[FFN概览|FFN / MLP]]：先理解 Dense FFN，再认识 MoE 怎样把同一职责改造成稀疏 Expert 路由。
-5. [[Block堆叠与Hidden-State流动概览|Block 堆叠与 Hidden State 流动]]：把单层连接成完整模型主体。
-
-## 简单形状示例
-
-若一条序列有 3 个位置，`hidden_size=4`：
-
-```text
-输入 Hidden States：[3,4]
-经过一个 Block：   [3,4]
-经过多个 Block：   [3,4]
-```
-
-形状可以保持不变，但每层中的数值与所包含的上下文信息不断变化。
-
-## 本专题边界
-
-- 只讲静态结构和一次前向数据流；
-- 不讲 Loss、梯度和参数更新；
-- 不讲 KV Cache、请求 Batch 和逐 Token 生成循环；
-- 不把 Attention Weight 当成完整思考解释。
-
-## 基线与真实模型变体
-
-必读主线先使用常见 Dense Decoder Transformer：
-
-```text
-Causal Attention
-+ Dense FFN
-+ Residual 与 Norm
-```
-
-真实模型可能替换其中某个子系统：
-
-```text
-Attention：Multi-Head Attention（MHA）/ Grouped Query Attention（GQA）/ Multi-Query Attention（MQA）/ Multi-head Latent Attention（MLA）/ 局部或滑动窗口变体
-FFN：Dense FFN / Mixture of Experts（MoE，专家混合）
-Norm：LayerNorm / RMSNorm，以及不同放置顺序
-```
-
-变体不会被当成另一套毫无关系的模型；阅读时始终先问“它替换了基线中的哪一块、保留了什么职责、改变了什么代价”。
+KV Cache、请求 Batch、采样和部署调度属于运行系统，不混入 Transformer 基础结构主线。
 
 ## 当前进度
 
-- [x] [[Transformer整体结构概览|Transformer 整体结构]]
-- [/] [[Causal-Self-Attention概览|Causal Self-Attention]]
-- [ ] [[Residual与Normalization概览|Residual 与 Normalization]]
-- [ ] [[FFN概览|FFN / MLP]]
-- [ ] [[Block堆叠与Hidden-State流动概览|Block 堆叠与 Hidden State 流动]]
+- [x] [[Transformer框架速览|整体框架]]
+- [x] [[Causal-Self-Attention概览|Causal Self-Attention]]
+- [x] [[Residual与Normalization概览|Residual 与 Normalization]]
+- [x] [[FFN概览|FFN / MLP]]
+- [x] [[Block堆叠与Hidden-State流动概览|Block 堆叠与 Hidden State 流动]]
+- [x] [[完整Transformer-Block串联复习概览|完整 Block 串联复习]]
+
+Transformer 基础结构已经闭环。下一专题：[[Output-Layer输出层概览|Output Layer 输出层]]。
