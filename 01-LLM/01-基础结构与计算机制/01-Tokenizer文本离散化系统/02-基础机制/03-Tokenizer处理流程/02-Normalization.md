@@ -1,0 +1,58 @@
+---
+type: concept
+module: 1
+status: complete
+audience: non-specialist
+parent: "[[00-Tokenizer处理流程概览|Tokenizer处理流程概览]]"
+previous: "[[01-编码与解码全景|编码与解码全景]]"
+next: "[[03-Pre-tokenization|Pre-tokenization]]"
+tags: [llm, tokenizer, normalization, unicode]
+---
+
+# Normalization
+
+## 一句话理解
+
+> Normalization 在正式切分前统一某些文本形式，以减少无意义差异；代价是被改掉的原始形式可能无法在解码时恢复。
+
+## 它可能处理什么？
+
+- Unicode 的等价或兼容形式；
+- 全角与半角；
+- 大小写；
+- 重音与组合符号；
+- 空白或控制字符。
+
+示意：
+
+```text
+ＡＢＣ → ABC
+```
+
+这不是所有 Tokenizer 的统一规则。有些模型刻意保留大小写、空格和原始 Unicode 差异。
+
+## 为什么需要它？
+
+视觉相同或用途相近的文本可能有不同底层表示。如果全部分别进入统计，会浪费词表容量，并让同类输入被不必要地切成不同序列。
+
+## 为什么可能不可逆？
+
+如果 `Ａ` 与 `A` 都被转成 `A`，后续 Token ID 只保存规范化后的结果，Decoder 无法判断原输入是哪一种。
+
+```text
+多个原始形式
+→ 同一个规范化形式
+→ 信息已经丢失
+```
+
+## 与“理解语义”的区别
+
+Normalization 是按预设规则改写文本，不是在理解句意。例如小写化可能让 `Apple` 公司与 `apple` 水果失去表面差异。
+
+## 理解检查
+
+1. 规范化怎样节省词表容量？
+2. 为什么规范化后不一定能逐字符恢复原文？
+3. 是否所有 Tokenizer 都应该统一小写？
+
+下一篇：[[03-Pre-tokenization|Pre-tokenization]]。

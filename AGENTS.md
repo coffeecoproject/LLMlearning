@@ -8,7 +8,7 @@ Help a non-specialist user understand the path from large language models to rea
 
 ## Current learning phase
 
-- Follow the seven-module learning structure defined in `00-总纲/AI 智能系统学习总纲.md`. The current content-development phase starts with large language models before later modules are expanded.
+- Follow the seven-module learning structure defined in `00-总纲/00-AI 智能系统学习总纲.md`. The current content-development phase starts with large language models before later modules are expanded.
 - Explain LLMs thoroughly for a non-specialist audience. Do not assume machine-learning, advanced mathematics, or neural-network background.
 - Use the learning-depth model below. A topic may be complete at the framework level without forcing the reader through parameters, mathematics, implementation, or architecture variants.
 - Never trade accuracy for a simple analogy. Clearly label where an analogy stops matching the real mechanism.
@@ -84,18 +84,24 @@ Organize substantial topics as progressive reading layers. These are curriculum 
 
 - The Obsidian file tree must reflect the visible knowledge hierarchy. Do not change only a note heading when the agreed concept name or hierarchy has changed; rename the corresponding folder or file when appropriate.
 - Organize content from broad to narrow: learning module → mechanism section → topic system → stable subsection → atomic concept note.
-- Prefix only folders whose visible order matters with a two-digit local order, such as `01-LLM`, `01-基础结构与计算机制`, `01-Tokenizer文本离散化系统`, and `02-Embedding向量表示`. Each folder number describes its order among its siblings, not its complete ancestry.
+- Design the tree for Obsidian's native alphabetical, folders-first explorer. Do not rely on note creation time, manual drag order, or an unapproved community plugin to express the curriculum sequence.
+- Keep `学习主页.md` at the vault root as the intentional global-entry exception. Curriculum notes inside module and topic folders must follow the numbering rules below.
+- Prefix ordered sibling folders with a two-digit local order, such as `01-LLM`, `01-基础结构与计算机制`, `01-Tokenizer文本离散化系统`, and `02-Embedding向量表示`. Each number describes order only among the items in that directory, not complete ancestry.
 - Name a topic folder after the highest-level object, mechanism, or system being studied, followed by its role when clarification is useful. Prefer `Tokenizer文本离散化系统` over a loose collection name such as `文本离散化与Token`.
-- Give each topic folder one semantically named entry note ending in `概览`, such as `Tokenizer文本离散化系统概览.md`. The folder expresses expandable hierarchy; the clearly named overview note owns the topic map, reading order, progress, concept boundaries, and links to subsection notes.
+- When a directory contains both child folders and an overview note, put the overview in the first child folder: `00-概览/00-<主题>概览.md`. A loose Markdown file beside child folders will appear after all folders in Obsidian and must not be used as the visual entry point.
+- Give each topic one semantically named entry note ending in `概览`, such as `00-概览/00-Tokenizer文本离散化系统概览.md`. The topic folder expresses hierarchy; the overview note owns the topic map, reading order, progress, concept boundaries, and links to subsection notes.
 - Do not use ancestry-encoded dotted numbering such as `1.1`, `1.1.1`, or `1.4.2.4.3` in folder names, filenames, headings, Wikilink labels, or frontmatter section fields.
-- Represent each stable subdivision that owns several notes as a locally numbered subfolder with a semantic overview note, such as `01-Token/Token概览.md` and `02-Vocabulary与Token ID/Vocabulary与Token ID概览.md`.
+- Represent each stable subdivision that owns several notes as a locally numbered subfolder. In a leaf folder, number the overview `00` and number the remaining notes in reading order, for example `01-Token/00-Token概览.md`, `01-Token/01-为什么模型需要Token.md`, and `01-Token/02-Token到底是什么.md`.
 - When depth layers need their own folders, use clear local names such as `01-框架速览`, `02-基础机制`, `03-参数与深入`, and `04-扩展结构`. These folder names describe the reading depth, while the topic overview must still describe the technically accurate system structure.
-- Name atomic notes directly after one core concept or one core question, such as `为什么模型需要Token.md`. Keep their reading sequence in the parent overview note instead of encoding the entire sequence in every filename.
+- Prefix every note in an ordered learning directory with a two-digit local sequence. Use `00` for that directory's overview and `01`, `02`, and so on for its declared reading order. Name the semantic portion after one core concept or one core question, such as `01-为什么模型需要Token.md`.
+- Derive note numbering from the explicit reading sequence in the parent overview. Alphabetical order must display the same sequence as the overview links; mixed Chinese and English titles must not be left to sort themselves.
+- Keep numeric prefixes out of rendered prose when they reduce readability. Prefer an alias such as `[[01-为什么模型需要Token|为什么模型需要 Token]]` while keeping the numbered target filename.
 - Do not add a numeric prefix to a folder merely because it is nested. Add one only when sibling order conveys a curriculum or mechanism sequence; otherwise use the semantic name directly.
 - Do not create a filesystem level for every minor conceptual distinction. Create a subfolder only for a stable subsection that owns multiple concepts or is expected to grow; express smaller relationships in its entry note with `[[Wikilinks]]`.
 - Classify concepts by their actual role before placing them in an outline. In particular, distinguish: object, resource, output, representation route, algorithm, implementation tool, and downstream effect. Do not present neighboring categories as parent-child relationships. For example, Token is an object; Vocabulary is a resource; Token ID is an output representation; BPE, WordPiece, and Unigram are methods; tiktoken and SentencePiece are tools or implementations.
 - Distinguish system structure from learning order. The system outline should be technically accurate, while the reading sequence should progress from observable input/output and concrete examples toward internal mechanisms.
-- When renaming or moving a note or folder, update all explicit paths, frontmatter relationships, topic outlines, module outlines, and `学习主页.md`; then search the vault for stale names or broken path references.
+- When inserting a note into an existing reading sequence, renumber the affected sibling notes rather than appending a misleading number. Update the parent overview's reading order in the same change.
+- When renaming, renumbering, or moving a note or folder, update all Wikilink targets and aliases, explicit paths, frontmatter relationships, topic outlines, module outlines, and `学习主页.md`; then check the entire vault for stale names, broken links, and duplicate basenames.
 
 ## Teaching examples and mathematical depth
 

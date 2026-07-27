@@ -1,0 +1,30 @@
+---
+type: subsection-index
+module: 1
+status: complete
+audience: non-specialist
+parent: "[[00-Attention基础机制概览|Attention基础机制概览]]"
+tags: [llm, attention, self-attention, causal-attention]
+---
+
+# Self-Attention 的目的与边界
+
+> [!summary]
+> Self-Attention 让序列中的每个位置根据自身当前状态，从同一序列的可见位置动态汇总相关信息；Causal 约束则禁止读取未来位置。
+
+## 子结构
+
+1. [[01-为什么需要位置之间的信息混合|为什么需要位置之间的信息混合]] ✓
+2. [[02-Self-Attention与Causal分别是什么|Self、Attention 与 Causal 分别是什么]] ✓
+
+## 一条主线
+
+```text
+每个位置只有自己的初始表示
+→ 需要读取其他相关位置
+→ 根据当前位置动态计算关注程度
+→ 汇总允许看见的信息
+→ 得到上下文相关表示
+```
+
+本节先建立目的和术语边界，不引入 Q、K、V 的具体计算。

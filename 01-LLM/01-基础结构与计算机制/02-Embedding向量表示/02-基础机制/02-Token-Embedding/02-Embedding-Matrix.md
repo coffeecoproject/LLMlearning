@@ -1,0 +1,151 @@
+---
+type: concept
+module: 1
+status: complete
+audience: non-specialist
+parent: "[[00-Token-Embedding概览|Token-Embedding概览]]"
+previous: "[[01-Token-ID为什么不能直接计算语义|Token-ID为什么不能直接计算语义]]"
+next: "[[03-Embedding-Lookup|Embedding-Lookup]]"
+tags: [llm, embedding-matrix, parameters]
+---
+
+# Embedding Matrix
+
+> [!summary]
+> Embedding Matrix 是 LLM 的一张可训练参数表：每一行对应一个 Token ID，每一行包含 `hidden_size` 个数。
+
+## 先看一张缩小的参数表
+
+假设一个教学模型只有 5 个 Token，`hidden_size = 4`：
+
+```text
+Embedding Matrix
+
+ID 0 → [ 0.1,  0.2, -0.3,  0.4]
+ID 1 → [-0.5,  0.6,  0.2, -0.1]
+ID 2 → [ 0.8, -0.7,  0.3,  0.5]
+ID 3 → [ 0.2,  0.9, -0.4,  0.1]
+ID 4 → [-0.6,  0.3,  0.7, -0.2]
+```
+
+可以写成一个矩阵：
+
+```text
+[
+  [ 0.1,  0.2, -0.3,  0.4],
+  [-0.5,  0.6,  0.2, -0.1],
+  [ 0.8, -0.7,  0.3,  0.5],
+  [ 0.2,  0.9, -0.4,  0.1],
+  [-0.6,  0.3,  0.7, -0.2]
+]
+```
+
+> [!note]
+> 这张矩阵及其数值完全是教学示意。
+
+## 矩阵形状从哪里来
+
+它的形状是：
+
+```text
+[vocab_size, hidden_size]
+```
+
+在示例中：
+
+```text
+[5, 4]
+```
+
+- 5 行：词表中有 5 个 Token ID；
+- 4 列：每个 Token 用 4 个数表示。
+
+真实模型可能有十几万行、数千列。
+
+## 每一行与词表怎样对应
+
+Tokenizer 词表决定：
+
+```text
+某个 Token ↔ 某个 Token ID
+```
+
+Embedding Matrix 再根据相同 ID 约定：
+
+```text
+某个 Token ID ↔ Embedding Matrix 的某一行参数
+```
+
+合起来是：
+
+```text
+Token
+→ Token ID
+→ Embedding Matrix 对应行
+→ 初始向量
+```
+
+这就是为什么 Tokenizer 与模型权重必须配套。若 ID 映射被换掉，模型仍会读取同一行，却把它用于错误的 Token。
+
+## Embedding Matrix 属于谁
+
+Embedding Matrix 属于 LLM 参数，而不是 Tokenizer 文件。
+
+```text
+Tokenizer Vocabulary
+→ 保存 Token 与 ID 的映射
+
+LLM Embedding Matrix
+→ 保存每个 ID 对应的可训练浮点参数
+```
+
+Tokenizer 可以告诉你“苹果”的 ID，却不能单独给出 LLM 学到的 Embedding 向量。后者在模型权重中。
+
+## 这些数字是人工填写的吗
+
+不是。训练开始时通常按初始化规则给参数设置初始小数值；在 LLM 训练过程中，为降低预测误差，Embedding Matrix 与其他模型参数一起被更新。
+
+所以它不是一本由工程师手写的语义字典，也不是 Tokenizer 根据词义现场计算出的结果。
+
+## 一行是否等于一个完整词义
+
+不等于。一个 Token 可能只是词的一部分、字节组合或特殊标记；同一个 Token 在不同上下文中的意义也可能变化。
+
+Embedding Matrix 中的一行只是这个 Token 进入模型时的初始参数表示。当前上下文中的具体表示，要经过 Transformer 层后形成 Hidden State。
+
+## 两张“二维表”不要混淆
+
+前面见过序列表示矩阵：
+
+```text
+[sequence_length, hidden_size]
+```
+
+现在的 Embedding Matrix 是：
+
+```text
+[vocab_size, hidden_size]
+```
+
+| 矩阵 | 每一行代表什么 |
+|---|---|
+| Embedding Matrix | 词表中的一个 Token ID |
+| 当前序列表示 | 当前输入中的一个 Token 位置 |
+
+当前序列可以多次出现同一个 Token，因此也可能多次从 Embedding Matrix 取出同一行。
+
+## 常见误解
+
+- **“Embedding Matrix 就是 Vocabulary。”** 前者是模型浮点参数，后者是 Token 与 ID 的映射。
+- **“矩阵第 3 行表示句子的第 3 个 Token。”** 它表示 ID 3；句子位置是另一条维度。
+- **“一行就是一个单词的完整定义。”** Token 不一定是词，初始向量也尚未包含当前上下文。
+- **“模型运行时临时创建整张矩阵。”** 矩阵随模型权重加载，运行时读取已有参数。
+
+## 理解检查
+
+1. `vocab_size = 1000`、`hidden_size = 64` 时，Embedding Matrix 有多少行、多少列？
+2. Tokenizer Vocabulary 和 Embedding Matrix 分别保存什么？
+3. 为什么同一个 Token 在一句话中出现两次，可能读取同一行初始参数？
+
+下一篇：[[03-Embedding-Lookup|Embedding Lookup]]。
+
