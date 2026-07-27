@@ -92,4 +92,4 @@ Transformer 产生上下文相关 Final Hidden States
 → 训练用来算 Loss，运行用来选下一个 Token
 ```
 
-如果这条因果链已经能独立讲清，可以进入 [[01-LLM/02-LLM普通运行与生成/00-概览/00-LLM普通运行与生成大纲|LLM 普通运行与生成]]，继续学习 Prompt Prefill、逐 Token 解码、KV Cache 和生成策略。
+如果这条因果链已经能独立讲清，可以进入 [[01-LLM/02-单请求推理与生成/00-概览/00-单请求推理与生成大纲|单请求推理与生成]]，继续学习 Prompt Prefill、逐 Token 解码、KV Cache 和生成策略。

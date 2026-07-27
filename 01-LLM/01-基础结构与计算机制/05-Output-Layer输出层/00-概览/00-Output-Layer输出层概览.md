@@ -104,7 +104,7 @@ Hidden State 只有 hidden_size 个内部特征
 这里不深入：
 
 - Cross Entropy、反向传播和优化器，进入“LLM 训练与对齐”；
-- Temperature、Top-k、Top-p、采样、停止条件和 KV Cache，进入“LLM 普通运行与生成”；
+- Temperature、Top-k、Top-p、采样、停止条件和 KV Cache，进入“单请求推理与生成”；
 - API 服务怎样调度多个用户请求，属于 Runtime 与服务系统。
 
 建议从 [[00-Output-Layer框架速览概览|Output Layer 一页看懂]] 开始。

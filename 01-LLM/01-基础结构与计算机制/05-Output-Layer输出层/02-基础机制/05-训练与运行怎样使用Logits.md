@@ -64,7 +64,7 @@ tags: [llm, logits, training, inference, next-token]
 → 选择下一个 Token，例如“猫”
 ```
 
-随后把新 Token 接入上下文，再继续下一轮。逐 Token 循环、KV Cache、采样和停止条件属于“LLM 普通运行与生成”，本节只保留接口。
+随后把新 Token 作为下一轮输入：它仍会经过 Embedding 和全部 Transformer Blocks，并在 Attention 中复用历史 KV Cache；Output Layer 只在这一轮末尾把新的 Final Hidden State 转换为下一轮 Logits。完整的逐 Token 循环、KV Cache、采样和停止条件属于“单请求推理与生成”，本节只保留接口。
 
 ## 为什么两者看起来不同
 
