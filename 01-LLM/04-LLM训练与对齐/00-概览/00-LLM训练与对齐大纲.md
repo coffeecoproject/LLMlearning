@@ -4,56 +4,76 @@ module: 1
 status: active
 audience: non-specialist
 parent: "[[01-LLM/00-概览/00-LLM 模块大纲|LLM 模块大纲]]"
-previous: "[[00-性能指标与Runtime边界概览|性能指标与Runtime边界概览]]"
+previous: "[[07-常见误解与Runtime最终检查|常见误解与Runtime最终检查]]"
 next: "[[01-LLM/05-能力形成与边界/00-能力形成与边界大纲|能力形成与边界大纲]]"
 tags: [llm, training, alignment, outline]
 ---
 
 # LLM 训练与对齐大纲
 
-> 本部分研究模型参数和行为倾向怎样形成。只有在这里，才集中引入 Loss、梯度、反向传播和 Optimizer。
+> [!summary]
+> 本部分解释训练数据怎样产生误差信号、误差信号怎样改变参数，以及大量更新怎样形成基础能力和后续行为倾向。
+
+## 一条主线
 
 ```text
-原始数据
-→ 清洗、过滤、去重与数据混合
-→ Tokenize、切段与 Packing
-→ 构造输入和错位一位的预测目标
-→ Forward 与 Loss
-→ Backward 与 Gradient
+原始资料
+→ 整理成 Token 训练样本
+→ 模型预测下一 Token
+→ Loss 衡量预测偏差
+→ Backward 产生 Gradient
 → Optimizer 更新参数
-→ Checkpoint
-→ 预训练模型
-→ 监督微调（SFT）、偏好优化、强化学习或蒸馏
-→ 后训练模型
+→ 大量 Step 形成 Base Model
+→ 后训练塑造指令与行为
 ```
 
-## 结构
+普通聊天通常只执行模型运行，不会自动进入 Backward 和参数更新。
 
-1. [[00-训练的基本边界概览|训练的基本边界]]：训练、普通运行与 Tokenizer 训练的区别；
-2. 数据工程：收集、许可、质量过滤、去重、数据混合与污染控制；
-3. 样本构造：Tokenize、切段、文档边界、样本拼接（Packing）、补齐（Padding）与损失掩码（Loss Mask）；
-4. Causal Language Modeling 目标：输入、错位一位的 Labels、教师强制（Teacher Forcing）与交叉熵（Cross-Entropy）；
-5. Forward、Loss、Backward、Gradient 与 Optimizer 的因果链；
-6. Step、Token Budget、Batch、Gradient Accumulation、Epoch、学习率与 Checkpoint；
-7. 大规模预训练：混合精度、数据并行、张量并行、流水线并行与训练稳定性；
-8. 持续预训练（Continued Pretraining）、监督微调（SFT）与指令学习：基础能力和行为格式怎样继续塑造；
-9. 偏好数据、奖励模型（Reward Model）与人类反馈强化学习（RLHF）：反馈怎样成为训练信号；
-10. 直接偏好优化（DPO）、强化学习与可验证奖励强化学习（RLVR）：不同后训练路线的共同点和区别；
-11. Fine-tuning、低秩适配（LoRA）、参数高效微调（PEFT）、蒸馏与模型适配；
-12. 数据偏差、评测污染、训练不稳定、灾难性遗忘与能力权衡。
+## 八部分结构
 
-## 边界
+1. [[00-LLM训练与对齐框架速览概览|框架速览]]：先建立整条训练地图；
+2. [[00-训练数据与样本构造概览|训练数据与样本构造]]：理解资料怎样成为训练 Token；
+3. [[00-训练目标与参数更新概览|训练目标与参数更新]]：理解一次参数更新；
+4. [[00-预训练与基础模型形成概览|预训练与基础模型形成]]：理解大量更新怎样形成 Base Model；
+5. [[00-规模化训练系统概览|规模化训练系统]]（选读）：理解显存、多设备和训练恢复；
+6. [[00-后训练与行为对齐概览|后训练与行为对齐]]：理解 SFT、偏好与强化学习；
+7. [[00-模型适配与能力迁移概览|模型适配与能力迁移]]（选读）：理解 Continued Pretraining、LoRA 与蒸馏；
+8. [[00-LLM训练与对齐边界与复习概览|边界与复习]]：重新串联并检查误解。
 
-- Tokenizer 的词表训练与 LLM 参数训练必须区分。
-- 普通聊天不会因为生成回答自动进入这里的参数更新流程。
-- Agent 的长期学习循环属于后续“持续学习”模块。
-- `Epoch` 是通用训练概念，但超大规模预训练常更关注已经处理的 Token 数、Step 和计算预算，不能把 Epoch 当作唯一进度单位。
+## 阅读分层
 
-## 真实训练路径校验
+### 必读主线
 
-- Meta 对 Llama 3 的公开说明包含质量过滤、NSFW 过滤、语义去重和数据混合实验；
-- InstructGPT 展示了 SFT、偏好排序数据、Reward Model 与强化学习路线；
-- DPO 展示了不显式训练并调用独立 Reward Model 进行强化学习的直接偏好优化路线；
-- DeepSeek-V3 官方报告包含预训练、SFT、强化学习、MoE 负载均衡和 Multi-Token Prediction 等真实变体。
+必读只围绕四个问题：
 
-来源：[Meta Llama 3 官方说明](https://ai.meta.com/blog/meta-llama-3/)、[InstructGPT 论文](https://arxiv.org/abs/2203.02155)、[DPO 论文](https://arxiv.org/abs/2305.18290)、[DeepSeek-V3 官方仓库](https://github.com/deepseek-ai/DeepSeek-V3)，核对日期：2026-07-27。
+```text
+模型学习什么？
+→ 参数怎样变化？
+→ 能力怎样长期形成？
+→ Base Model 怎样变成可用模型？
+```
+
+### 选读机制
+
+用于解释 Packing、Mask 字段、Optimizer 变体、Checkpoint、初始化配置等更具体机制，不阻挡主线。
+
+### 工程参考
+
+数据合规管线、Gradient Accumulation、混合精度、分布式并行和故障恢复，面向真正训练或部署模型时再读。
+
+## 阶段边界
+
+- Tokenizer 构建与 LLM 参数训练不是同一过程；
+- 训练时可用完整序列计算多个位置，但 Causal Mask 仍阻止偷看未来；
+- 预训练形成基础预测能力，后训练继续塑造指令和行为；
+- Agent 的会话记忆与模型参数训练属于不同系统层；
+- 本模块不要求掌握 GPU 通信、训练代码或公式推导。
+
+## 完成标准
+
+学完后，应能不依赖实现代码解释：
+
+1. 一条文本怎样对模型参数产生一次微小影响；
+2. 为什么一次更新不等于学会一项能力；
+3. 为什么大规模下一 Token 训练可能形成复杂能力，也不能保证事实可靠；
+4. 为什么 Base Model 和 Chat Model 不是同一个训练阶段。

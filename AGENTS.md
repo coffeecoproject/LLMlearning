@@ -18,6 +18,14 @@ Help a non-specialist user understand the path from large language models to rea
 
 Organize substantial topics as progressive reading layers. These are curriculum layers, not components of the model itself.
 
+### User-understanding first
+
+- The default goal is to help a non-specialist reconstruct the end-to-end causal flow, not to cover every technical detail that exists in the field.
+- Put a concept in the required reading only when it is necessary to explain where the component is, what enters it, why it exists, how it works at the chosen depth, what it produces, how it connects to adjacent components, or where its responsibility ends.
+- The fact that a technique exists does not by itself make it required reading or justify a separate note. Engineering parameters, low-level optimizations, algorithm variants, implementation configurations, and provider-specific behavior should be marked as optional or deferred when they do not change the user's understanding of the main flow.
+- Judge completion by whether the user can restate the overall process, reconstruct its main causal chain, and distinguish key boundaries. Do not judge completion by whether every term, variant, parameter, or implementation detail has been included.
+- Every substantial overview should make the main route, optional route, and safe stopping point visible. Optional material must not silently become a prerequisite for the next major component.
+
 ### Level 0: framework overview
 
 - Serve readers who only want to understand the overall LLM architecture.
@@ -78,6 +86,8 @@ Organize substantial topics as progressive reading layers. These are curriculum 
 - When one topic spans distinct phases, label them explicitly as `训练阶段`, `运行阶段`, and where needed `两阶段共同`. Do not interleave tokenizer training, LLM training, model inference, and generation decoding without first stating which phase and system layer is being discussed.
 - Keep single-request inference separate from inference Runtime engineering. Prefill, causal generation, KV reuse, Token selection, stopping, and text recovery belong to the single-request causal path. Model loading, multi-request batching, continuous batching, cache paging and allocation, scheduling, network streaming, API serving, parallel deployment, and service throughput belong to the Runtime and model-serving section.
 - When an object crosses those layers, split by responsibility instead of duplicating the whole explanation. For example, explain why KV Cache is reusable in single-request inference, and explain how cache blocks are allocated, paged, shared, and reclaimed in Runtime engineering.
+- Teach Runtime as a conceptual system before presenting implementation details. Required reading should explain purpose, actors, state ownership, lifecycle, causal relationships, tradeoffs, and layer boundaries. Treat memory formulas, kernel internals, communication mathematics, deployment commands, and framework-specific parameters as optional implementation depth.
+- Separate Runtime service startup from request execution, and separate single-request state from shared multi-request service state. Use simple end-to-end lifecycles before introducing batching, cache paging, parallelism, or performance metrics.
 - Keep the root learning map `学习主页.md` updated when adding a major topic.
 - Store attachments under `99-Assets/`.
 - Do not edit `.obsidian/` settings unless the user asks for an Obsidian configuration change.

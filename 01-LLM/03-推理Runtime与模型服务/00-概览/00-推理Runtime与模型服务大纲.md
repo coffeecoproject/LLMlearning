@@ -1,7 +1,7 @@
 ---
 type: section-outline
 module: 1
-status: active
+status: complete
 audience: non-specialist
 parent: "[[01-LLM/00-概览/00-LLM 模块大纲|LLM 模块大纲]]"
 previous: "[[00-单请求推理与生成边界与复习概览|单请求推理与生成边界与复习概览]]"
@@ -50,14 +50,37 @@ Runtime 回答：
 
 Runtime 不是模型的 Attention 或 FFN，也不是 Agent 的规划器。它是让固定参数模型可以被高效调用的执行与服务层。
 
-## 六部分结构
+## 八部分结构
 
 1. [[00-推理Runtime框架速览概览|框架速览]]：一页看清模型、Runtime、服务端和客户端；
-2. [[00-模型加载与请求边界概览|模型加载与请求边界]]：权重、Tokenizer、配置和一次请求怎样进入引擎；
-3. [[00-批处理与调度概览|批处理与调度]]：Batch、Continuous Batching 与请求生命周期；
+2. [[00-模型加载与请求生命周期概览|模型加载与请求生命周期]]：模型怎样从文件变成可执行服务，一个请求又怎样开始和结束；
+3. [[00-批处理与调度概览|批处理与调度]]：Batch、Continuous Batching 与多个请求怎样共享执行机会；
 4. [[00-KV-Cache工程管理概览|KV Cache 工程管理]]：分页、内存块、Prefix Cache 和回收；
-5. [[00-接口流式传输与部署概览|接口、流式传输与部署]]：Streaming、API、本地与托管服务；
-6. [[00-性能指标与Runtime边界概览|性能指标与边界]]：吞吐量、延迟、资源和证据边界。
+5. [[00-API与流式传输概览|API 与流式传输]]：客户端、模型服务器、响应事件与网络边界；
+6. [[00-执行优化并行与部署概览|执行优化、并行与部署]]：设备、精度、执行组织和多设备服务；
+7. [[00-性能指标与测量边界概览|性能指标与测量边界]]：吞吐量、延迟、资源与测量条件；
+8. [[00-推理Runtime边界与复习概览|边界与复习]]：完整串联系统职责、状态和可观察证据。
+
+## 学习尺度
+
+Runtime 涉及大量工程名词，但本部分仍然沿用前两部分的学习方式：
+
+```text
+先看系统为什么需要这一层
+→ 再看对象和职责
+→ 再看一条真实运行过程
+→ 最后才接触实现变体和可选计算
+```
+
+必修主线回答：
+
+- 这个组件为什么存在；
+- 它接收什么、产生什么；
+- 它与前后环节怎样连接；
+- 没有它会出现什么问题；
+- 它改变速度、容量、状态还是模型能力。
+
+以下内容不作为理解 Runtime 的前提：显存地址、CUDA 编程、并行通信公式、调度算法证明和具体云平台配置。需要时只使用简单数字说明因果关系。
 
 ## 本部分不重复讲什么
 
@@ -65,6 +88,7 @@ Runtime 不是模型的 Attention 或 FFN，也不是 Agent 的规划器。它�
 - 不重新推导 Prefill 和 Decode 的单请求机制；
 - 不把 Chat Template、Temperature、Top-p 当作 Runtime 的核心结构；
 - 不展开 Agent 规划、工具调用和任务循环；
+- 不把部署命令、框架参数或硬件公式当成概念主线；
 - 不根据客户端源码反推闭源服务端内部架构。
 
 ## 真实实现观察
@@ -73,8 +97,13 @@ Runtime 不是模型的 Attention 或 FFN，也不是 Agent 的规划器。它�
 - vLLM 明确提供 Continuous Batching、PagedAttention、Prefix Caching、Streaming、并行和 API Server，适合观察服务型 Runtime。
 - OpenAI Responses API 公开输入、输出和 Streaming 事件协议，但托管服务内部的调度、缓存布局和模型部署结构若未公开，仍属于未知信息。
 
-来源：[Hugging Face Transformers Generation](https://huggingface.co/docs/transformers/main_classes/text_generation)、[vLLM 官方文档](https://docs.vllm.ai/en/stable/)、[OpenAI Responses Streaming 官方参考](https://platform.openai.com/docs/api-reference/responses-streaming)，核对日期：2026-07-27。
+来源：[Hugging Face Transformers Generation](https://huggingface.co/docs/transformers/main_classes/text_generation)、[vLLM 官方文档](https://docs.vllm.ai/en/stable/)、[OpenAI Responses Streaming 官方参考](https://platform.openai.com/docs/api-reference/responses-streaming)，核对日期：2026-07-28。
+
+> [!note] 阅读深度
+> 1—5 与第 8 部分构成用户理解主线。第 6 部分只必读设备、部署与优化取舍；Kernel、并行变体和 Prefill/Decode 分离均已标为选读。第 7 部分只要求会读指标和测试条件，不要求硬件容量计算。
 
 ## 完成本部分后应能回答
 
 > 模型权重本身不会接收网络请求，那么一个模型服务怎样把许多用户请求转化为实际的 Prefill 和 Decode 计算，并管理它们的资源与输出？
+
+本部分内容已补齐。完成 [[00-推理Runtime边界与复习概览|边界与复习]] 后，可进入 [[01-LLM/04-LLM训练与对齐/00-概览/00-LLM训练与对齐大纲|LLM训练与对齐]]。

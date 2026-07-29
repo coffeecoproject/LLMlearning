@@ -24,7 +24,7 @@ Embedding 怎样参与普通运行
 → [[01-训练完成后怎样使用Embedding|训练完成后怎样使用Embedding]]
 
 Embedding 怎样在训练中被更新
-→ [[01-训练怎样塑造Embedding|训练怎样塑造Embedding]]
+→ [[01-LLM/04-LLM训练与对齐/03-训练目标与参数更新/05-完整更新案例/01-训练怎样塑造Embedding|训练怎样塑造 Embedding]]
 ```
 
 这里不展开 Loss、反向传播、Optimizer、Batch、请求调度或 KV Cache，避免把静态结构、训练和 Runtime 混在一起。

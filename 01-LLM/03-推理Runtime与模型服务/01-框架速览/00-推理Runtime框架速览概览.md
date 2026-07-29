@@ -5,7 +5,7 @@ status: complete
 audience: non-specialist
 parent: "[[00-推理Runtime与模型服务大纲|推理Runtime与模型服务大纲]]"
 previous: "[[00-推理Runtime与模型服务大纲|推理Runtime与模型服务大纲]]"
-next: "[[00-模型加载与请求边界概览|模型加载与请求边界概览]]"
+next: "[[00-模型加载与请求生命周期概览|模型加载与请求生命周期概览]]"
 tags: [llm, inference, runtime, serving, overview, beginner]
 ---
 
@@ -24,6 +24,32 @@ tags: [llm, inference, runtime, serving, overview, beginner]
 | 应用或 Agent | 使用模型能力的上层系统 | 组织用户体验、任务状态、工具与工作流 |
 
 真实软件可能把 Runtime 和模型服务器打包在一起，但职责仍可区分。
+
+## 抽象职责与具体软件不要混为一谈
+
+“推理 Runtime”是一个系统角色，描述的是一组必须有人承担的职责；`vLLM`、SGLang、TGI 和 llama.cpp 等则是承担其中部分或全部职责的具体软件实现。
+
+以 vLLM 为例：
+
+| vLLM覆盖的职责 | 不由vLLM自动完成的职责 |
+|---|---|
+| 加载开放模型权重与配套资产 | 训练或微调模型参数 |
+| 组织模型前向计算 | 理解业务目标并制定任务计划 |
+| 调度请求并管理KV Cache | 执行企业数据库或本地文件工具 |
+| 提供Streaming和兼容API服务 | 构建产品界面、业务权限和结果验证 |
+
+因此可以先这样定位：
+
+```text
+Runtime是一类系统职责
+→ vLLM是其中一种开源实现
+→ vLLM还把部分模型服务器能力一起打包提供
+→ 但它不是模型本身，也不是Agent
+```
+
+同一个开放模型可以由不同 Runtime 装配；同一个上层 Agent 也可以改为调用不同模型服务。后面的 [[06-一个模型从启动到完成首个请求|Qwen3-8B 与 vLLM 案例]]会展示一条真实路径。
+
+来源：[vLLM 官方项目与能力概览](https://github.com/vllm-project/vllm)、[Hugging Face Inference Endpoints 支持的推理引擎](https://huggingface.co/docs/inference-endpoints/about)，核对日期：2026-07-28。
 
 ## 一个请求怎样穿过这些层
 
@@ -59,5 +85,6 @@ tags: [llm, inference, runtime, serving, overview, beginner]
 3. 模型服务器把 Runtime 和外部请求连接起来。
 4. 多用户优化不能改变自回归 Token 的逻辑依赖。
 5. 客户端能观察 API 行为，不等于能观察闭源服务端内部实现。
+6. vLLM 是 Runtime 的一种实现，不是 Runtime 这个抽象概念本身。
 
-继续阅读：[[00-模型加载与请求边界概览|模型加载与请求边界]]。
+继续阅读：[[00-模型加载与请求生命周期概览|模型加载与请求生命周期]]。
