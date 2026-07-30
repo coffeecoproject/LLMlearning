@@ -5,6 +5,7 @@ status: complete
 audience: non-specialist
 parent: "[[00-后训练与行为对齐概览|后训练与行为对齐概览]]"
 previous: "[[00-RLHF与策略模型更新概览|RLHF 与策略模型更新概览]]"
+next: "[[00-RLVR与可验证奖励概览|RLVR 与可验证奖励概览]]"
 tags: [llm, post-training, dpo, preference-optimization, alignment]
 ---
 
@@ -108,3 +109,7 @@ DPO 省去了独立 Reward Model、Value Model 和在线 PPO Rollout 环，但�
 3. DPO 比较的是两个完整答案的文字，还是模型生成它们的相对倾向？
 4. DPO 与 SFT 的训练信号有什么不同？
 5. 为什么 DPO 仍不能保证 Chosen 是正确答案？
+
+## 继续学习
+
+- 下一小节：[[00-RLVR与可验证奖励概览|RLVR 与可验证奖励]]

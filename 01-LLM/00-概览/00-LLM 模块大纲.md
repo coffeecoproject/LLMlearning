@@ -256,4 +256,4 @@ OpenAI 来源：[Fine-tuning with gpt-oss and Hugging Face Transformers](https:/
 4. 判断一个问题来自模型、上下文、训练、解码还是评估方式；
 5. 阅读开放权重模型的基础配置和 Model Card；
 6. 对模型能力、成本和风险做有证据的比较；
-7. 带着准确的 LLM 心智模型进入 [[02-推理与CoT/00-推理与 CoT 模块大纲|推理与 CoT]] 模块。
+7. 带着准确的 LLM 心智模型进入 [[02-推理与CoT/00-概览/00-推理与 CoT 模块大纲|推理与 CoT]] 模块。

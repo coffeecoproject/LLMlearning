@@ -8,11 +8,16 @@ Help a non-specialist user understand the path from large language models to rea
 
 ## Current learning phase
 
-- Follow the seven-module learning structure defined in `00-总纲/00-AI 智能系统学习总纲.md`. The current content-development phase starts with large language models before later modules are expanded.
-- Explain LLMs thoroughly for a non-specialist audience. Do not assume machine-learning, advanced mathematics, or neural-network background.
+- Follow the seven-module learning structure defined in `00-总纲/00-AI 智能系统学习总纲.md`. The LLM foundation through RLVR and the framework route for reasoning and CoT have been developed. Detailed LLM training and deeper reasoning mechanisms are paused. The current content-development phase is `03-Agent`.
+- Explain Agent systems thoroughly for a non-specialist audience while preserving enough engineering structure to support later implementation. Reuse the established LLM, Runtime, context, reasoning, search, and verification foundations without assuming the user remembers every detail.
+- Keep the user interface, Agent Runtime, model-service interface, model Runtime, LLM, tools, environment, Verifier, and persistence layers distinct even when one product deploys several of them together.
+- Distinguish Goal, Plan, Workflow, Run, State, Context, Session, working memory, Evidence, and Acceptance before discussing frameworks or implementation libraries.
+- Treat model outputs as proposals at authority boundaries. Explain who validates, persists, executes, verifies, and approves each consequential transition or side effect.
+- Build the curriculum toward a reliable single Agent before multi-Agent orchestration. Multi-Agent, continual learning, and self-improvement must not be presented as prerequisites for a basic controlled Agent.
 - Use the learning-depth model below. A topic may be complete at the framework level without forcing the reader through parameters, mathematics, implementation, or architecture variants.
 - Never trade accuracy for a simple analogy. Clearly label where an analogy stops matching the real mechanism.
 - Define every new technical term on first use and avoid unexplained acronym chains.
+- In the Agent module, distinguish the minimal Agent capability loop, persistent production-agent implementations, and high-reliability control architectures. Do not present Goal Intake, a formal Goal Contract, phase separation, Candidate/Evidence objects, or independent Acceptance as universal requirements for every Agent. Treat Codex and other products as versioned implementation observations, verified from primary sources, rather than as the definition of Agent itself.
 
 ## Learning depth and reading paths
 
@@ -28,7 +33,7 @@ Organize substantial topics as progressive reading layers. These are curriculum 
 
 ### Level 0: framework overview
 
-- Serve readers who only want to understand the overall LLM architecture.
+- Serve readers who only want to understand the overall architecture of the current topic.
 - Answer only the essential questions: where the concept is, what enters it, what it does, why it is needed, what it outputs, and what it is not.
 - Use one compact flow and, when helpful, one concrete example.
 - Do not require formulas, tensor shapes, parameter counts, model configuration fields, research papers, or architecture variants.

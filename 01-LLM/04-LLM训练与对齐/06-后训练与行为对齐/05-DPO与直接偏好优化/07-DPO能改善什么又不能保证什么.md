@@ -5,6 +5,7 @@ status: complete
 audience: non-specialist
 parent: "[[00-DPO与直接偏好优化概览|DPO 与直接偏好优化概览]]"
 previous: "[[06-DPO与SFT及PPO-RLHF有什么区别|DPO 与 SFT、PPO-RLHF 有什么区别]]"
+next: "[[00-RLVR与可验证奖励概览|RLVR 与可验证奖励概览]]"
 tags: [llm, dpo, preference-optimization, limitations, evaluation]
 ---
 
@@ -155,6 +156,8 @@ DPO 使用“哪个候选更好”的比较信号。某些任务则可以获得�
 
 下一步将学习 `RLVR 与可验证奖励`：怎样使用可程序验证的结果反馈训练模型。
 
+继续进入：[[00-RLVR与可验证奖励概览|RLVR 与可验证奖励]]。
+
 ## 来源
 
 > [!source]
@@ -186,3 +189,4 @@ DPO 使用“哪个候选更好”的比较信号。某些任务则可以获得�
 
 - 上一篇：[[06-DPO与SFT及PPO-RLHF有什么区别|DPO 与 SFT、PPO-RLHF 有什么区别]]
 - 返回：[[00-DPO与直接偏好优化概览|DPO 与直接偏好优化概览]]
+- 下一小节：[[00-RLVR与可验证奖励概览|RLVR 与可验证奖励]]
