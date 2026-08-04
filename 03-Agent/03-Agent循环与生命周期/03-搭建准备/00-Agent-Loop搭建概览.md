@@ -1,6 +1,7 @@
 ---
 type: implementation-overview
 module: 3
+learning_layer: cross-layer
 status: complete
 audience: non-specialist
 parent: "[[00-Agent循环与生命周期概览|Agent 循环与生命周期概览]]"
@@ -10,51 +11,61 @@ tags: [agent-loop, implementation, controller]
 # Agent Loop 搭建概览
 
 > [!summary]
-> 搭建 Agent Loop 的重点不是写出能反复调用模型的循环，而是定义每轮输入、允许结果、状态转换、预算、错误和停止边界。
+> 第一版 Agent Loop 只需把“模型决策—工具执行—结果回传—继续或停止”跑通；状态机、持久恢复、事件协议与独立验收是按风险增加的控制能力。
 
-## 最小组件
+> [!info] 层级定位
+> 第一版只需模型调用、一个工具、Observation、最大步数和停止条件；事件协议、恢复、幂等与独立完成边界按风险继续增加。
+
+## Agent 基础结构：最小组件
+
+```text
+Simple Loop
+├── Input Assembler
+├── Model Client
+├── Response Branch（最终回答或 Tool Call）
+├── Tool Dispatcher
+└── Step Limit / Stop Condition
+```
+
+这些职责可以只是同一程序中的几个函数，不要求独立服务、Run 数据库或正式状态机。
+
+## 基础循环的一轮
+
+```text
+1. 把当前请求、工具说明和已有结果组装成模型输入
+2. 发起一次 Model Call
+3. 如果模型给出最终回答，就结束
+4. 如果模型请求工具，检查工具名与参数
+5. 执行工具并取得 Tool Result
+6. 把结果加入下一次输入
+7. 未达到最大步数时再次调用模型
+```
+
+## 第一版建议能力
+
+- 直接把本次用户请求作为当前 Goal；
+- 一个只读工具；
+- 能区分最终回答与 Tool Call；
+- 对工具名和参数做程序校验；
+- 一个最大步数与明确停止条件；
+- 保留当前 Turn 中必要的消息和 Tool Result。
+
+## 持续与高可靠理想结构（选读）
+
+当任务需要跨 Turn、进程重启、外部副作用或独立验收时，再扩展为：
 
 ```text
 Run Controller
 ├── State Reader / Writer
 ├── Context Builder
-├── Model Client
-├── Response Decoder
+├── Model Client / Response Decoder
 ├── Tool Dispatcher
 ├── Transition Policy
 ├── Budget Manager
 └── Event / Audit Writer
 ```
 
-这些组件第一版可以位于同一个进程，但职责需要可区分和测试。
-
-## 一轮控制顺序
-
-```text
-1. 加载当前 Run 和版本
-2. 判断当前状态是否可执行
-3. 检查取消、预算和超时
-4. 构建 Context Package
-5. 发起一次模型 Turn
-6. 严格解析返回事件
-7. 校验权限和当前状态
-8. 执行最多一个明确的下一动作或受控动作组
-9. 保存 Observation、结果和状态变化
-10. 决定是否安排下一轮
-```
-
-“一次只提交一个明确状态变化”通常比让 CLI 或模型连续改多个权威对象更容易恢复和审计。
-
-## 第一版建议能力
-
-- 一个正式 Goal；
-- 一个 Run；
-- `READY / RUNNING / WAITING / VERIFYING / COMPLETED / FAILED / CANCELLED` 一组说明性状态；
-- 一个只读工具；
-- 一个最大 Turn 数；
-- 一个 Completion Request；
-- 一个确定性验证条件；
-- 所有 Turn 和 Tool Call 可追踪。
+此时一轮可能变成：加载 Run 与版本 → 检查状态和预算 → 构建 Context Package → 校验事件与权限 → 执行动作 → 原子保存 Observation 和状态 → 安排下一轮。正式 Goal、Run 状态机、Completion Request 和独立 Acceptance 都属于这一层。
 
 ## 暂时不要加入
 
@@ -67,11 +78,11 @@ Run Controller
 
 ## 搭建顺序
 
-1. 先实现没有 LLM 的确定性状态机测试；
-2. 接入返回固定事件的 Fake Model；
-3. 接入一个只读工具；
-4. 再替换成真实模型；
-5. 加入错误、取消和预算；
-6. 最后连接持久化和恢复。
+1. 接通一次模型调用，并能返回最终回答；
+2. 接入一个只读工具，把 Tool Result 返回模型；
+3. 加入最大步数、错误与停止条件；
+4. 为循环写确定性测试；
+5. 确有跨 Turn 或恢复需求时，再加入 Run、事件、持久化和状态机；
+6. 高风险任务最后增加权限审批、Evidence 与独立 Acceptance。
 
 下一篇：[[01-控制循环与事件协议|控制循环与事件协议]]。

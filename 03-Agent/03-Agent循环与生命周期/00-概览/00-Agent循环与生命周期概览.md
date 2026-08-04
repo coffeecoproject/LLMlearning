@@ -1,6 +1,7 @@
 ---
 type: topic-overview
 module: 3
+learning_layer: cross-layer
 status: complete
 audience: non-specialist
 parent: "[[00-Agent模块大纲|Agent 模块大纲]]"
@@ -12,47 +13,66 @@ tags: [agent, loop, lifecycle, state-machine]
 > [!summary]
 > Agent Loop 是外部程序反复进行“读取状态、构建上下文、调用模型、处理动作、接收反馈、更新状态和判断停止”的控制循环；LLM 只参与其中的决策生成环节。
 
-## 在 Agent 主线中的位置
+## 本专题的两层边界
+
+### Agent 基础结构
+
+只需理解外部程序反复执行“模型决策 → 工具行动 → 环境反馈”，并有继续或停止条件。简单 Agent 可以没有显式 Run、Phase、Attempt 或状态机。
+
+### 持续与高可靠理想结构（选读）
+
+Run 身份、Phase、Attempt、状态转换守卫、预算、中断恢复和独立 Acceptance 用于长任务、恢复、权限分层与审计。
+
+## 基础 Agent 主线中的位置
 
 ```text
-任务目标（可以是用户请求、Thread Goal 或正式 Goal Contract）
-→ 创建 Run
-→ Agent Runtime 启动循环
-→ 模型提出回答或动作
-→ Runtime 执行并记录 Observation
-→ 再次循环
-→ 等待、阻塞、失败、取消或进入验收
+用户请求
+→ 程序组装本次模型输入
+→ 模型返回最终回答或 Tool Call
+→ 若是 Tool Call，程序执行工具并取得结果
+→ 把结果加入下一次模型输入
+→ 模型继续决策，直到给出最终回答或触发停止条件
 ```
 
-模型一次生成结束，只表示一次模型交互结束。整个 Run 是否继续、重试或完成，由 Agent Runtime 根据状态和策略判断。
+模型一次生成结束，只表示一次 Model Call 结束。外部程序根据结果决定执行工具、再次调用模型，还是结束当前用户 Turn。
 
-## 最小控制循环
+## 持续与高可靠主线（选读）
 
 ```text
-读取当前权威状态
-→ 判断是否允许继续
-→ 为本轮构建 Context Package
-→ 调用 LLM
-→ 解析并校验模型结果
-→ 执行允许的动作
-→ 记录 Observation 和状态变化
-→ 判断下一状态
-→ 继续下一轮或停止
+任务目标（Thread Goal 或 Goal Contract）
+→ 创建或恢复 Run
+→ 读取权威状态并构建 Context Package
+→ 调用模型并校验决策
+→ 执行获准动作、记录 Observation 与状态变化
+→ 按预算、状态机和验收规则继续、等待、恢复或停止
 ```
 
-## 本专题的核心对象
+第二条链路是在基础循环之外增加持久化、授权、恢复与验收控制，不是 Agent Loop 的定义本身。
 
-| 对象 | 最小理解 |
-|---|---|
-| Goal | 整个运行要满足的目标与完成边界 |
-| Run | 围绕一个 Goal 启动的一次受控运行 |
-| Phase | Run 中具有特定目的、权限和退出条件的阶段 |
-| Turn | Agent 与模型的一轮请求和响应 |
-| Step | Runtime 记录的一个处理步骤或动作 |
-| Attempt | 对某个阶段或任务的一次有界执行尝试 |
-| Observation | 工具、环境或用户返回的真实结果 |
+## 本专题的三组对象
 
-这些名称不是所有框架统一采用的标准。简单 Agent 可能只显式记录 Thread 和 Turn；可靠长任务通常需要逐步建立等价的身份和边界，避免只靠聊天顺序推测状态。
+```text
+任务执行对象
+→ Goal、Run、Phase、Attempt、Step
+
+产品交互与协议对象
+→ Thread、Turn、Item、Model Call
+
+循环反馈对象
+→ Action、Tool Result、Observation
+```
+
+它们会互相引用，但不构成所有 Agent 都必须照搬的一棵父子树。尤其在 Codex 中：
+
+```text
+Turn
+= 从一次用户输入到最终 Agent Message
+
+一个 Turn 内
+= 可以发生多次 Model Call、工具执行和 Observation
+```
+
+简单 Agent 可能只显式记录 Thread、Turn 和 Item；高可靠长任务则会在产品协议之外增加 Goal、Run、Phase、Attempt、Evidence 等控制对象。
 
 ## 实现可以合并，也可以拆分
 
@@ -70,14 +90,20 @@ Codex 式持续 Agent
 
 ### 只看框架
 
-1. [[00-Agent-Loop到底是什么|Agent Loop 到底是什么]]；
-2. [[01-一次Run怎样从开始走到结束|一次 Run 怎样从开始走到结束]]。
+只读 [[00-Agent-Loop到底是什么|Agent Loop 到底是什么]]，先掌握程序如何把多次 Model Call 与工具执行连成循环。
 
 ### 理解机制
 
+基础 Agent 先读：
+
+1. [[01-Thread-Turn-Item与Model-Call|Thread、Turn、Item 与 Model Call]]；
+2. [[02-Observe-Decide-Act循环|Observe–Decide–Act 循环]]。
+
+持续与高可靠 Agent 再选读：
+
 1. [[00-运行对象与状态机概览|运行对象与状态机概览]]；
-2. [[01-Goal-Run-Phase-Turn-Step与Attempt|Goal、Run、Phase、Turn、Step 与 Attempt]]；
-3. [[02-Observe-Decide-Act循环|Observe–Decide–Act 循环]]；
+2. [[01-一次Run怎样从开始走到结束|一次 Run 怎样从开始走到结束]]；
+3. [[02-Goal-Run-Phase-Step与Attempt|Goal、Run、Phase、Step 与 Attempt]]；
 4. [[03-状态转换与守卫|状态转换与守卫]]；
 5. [[04-等待取消失败与完成|等待、取消、失败与完成]]。
 
@@ -92,15 +118,16 @@ Codex 式持续 Agent
 ### 案例与复习
 
 - [[00-Agent循环与生命周期案例复习|Agent 循环与生命周期案例复习]]。
+- [[01-Codex-CLI查看功能的完整运行链路|Codex CLI 查看功能的完整运行链路]]。
 
 ## 与相邻专题的边界
 
 - 本专题负责循环身份、状态和合法转换；
-- [[00-状态与持久化概览|状态与持久化]]详细解释这些状态怎样可靠保存；
+- [[00-运行状态与持久化概览|运行状态与持久化]]详细解释这些状态怎样可靠保存；
 - [[00-工具与环境交互概览|工具与环境交互]]详细解释动作怎样真实执行；
-- [[00-反馈重试与恢复概览|反馈、重试与恢复]]详细解释失败后的重试和外部现实核对；
+- [[00-Observation反馈重试与恢复概览|Observation、反馈、重试与恢复]]详细解释工具结果怎样推动下一轮，以及失败后的重试和外部现实核对；
 - [[00-验证证据与验收概览|验证、证据与验收]]决定任务是否真的满足 Goal。
 
 ## 框架停止点
 
-如果你能说明“模型不会自己持续运行；Agent Runtime 用 Run 状态反复触发模型和工具，并在明确条件下继续、等待或停止”，本专题在框架层已经完成。
+如果你能说明“模型不会自己持续运行；外部程序根据模型结果执行工具、返回 Observation，并决定再次调用还是结束”，本专题在框架层已经完成。Run、Phase、状态机、恢复和独立 Acceptance 可以按任务风险继续选读。

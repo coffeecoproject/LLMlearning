@@ -1,6 +1,7 @@
 ---
 type: review-note
 module: 3
+learning_layer: cross-layer
 status: planned
 audience: non-specialist
 parent: "[[00-Agent模块大纲|Agent 模块大纲]]"
@@ -11,6 +12,9 @@ tags: [agent, boundary, review, architecture]
 
 > [!summary]
 > Agent 的能力来自模型与外部控制系统的组合：模型负责生成候选决策，控制系统负责目标、状态、工具、权限、反馈、恢复和验收；系统复杂度增加并不会自动消除模型的不确定性。
+
+> [!info] 层级定位
+> 复习时先检查基础行动循环是否成立，再单独评价持久化、安全、恢复和验收等级；不能用一套高可靠清单反向否定所有简单 Agent。
 
 ## 最终复习主线
 

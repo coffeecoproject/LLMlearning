@@ -1,6 +1,7 @@
 ---
 type: topic-overview
 module: 3
+learning_layer: cross-layer
 status: complete
 audience: non-specialist
 parent: "[[00-Agent模块大纲|Agent 模块大纲]]"
@@ -53,7 +54,20 @@ Agent 没有唯一标准实现。本页先给出所有 Agent 都能映射的基�
 
 LLM 可以生成分析和动作建议，但文件、测试、数据库和任务状态都存在于模型之外。因此必须有一个程序把多次模型调用和真实环境连接起来。
 
-## 完整能力地图
+## Agent 基础结构
+
+~~~text
+当前请求或目标
+→ 程序构造模型输入
+→ LLM 提出回答或 Tool Call
+→ 程序执行允许的工具
+→ Tool Result 成为下一次输入
+→ 继续或停止
+~~~
+
+这条链成立，就已经具备 Agent 的基本行动循环。状态存储、Context Builder、Verifier 等职责可以只是同一个程序中的少量逻辑，不要求拆成独立组件。三层结构的判断见 [[01-Agent基础结构与高可靠理想结构怎样区分|Agent 基础结构与高可靠理想结构怎样区分]]。
+
+## 持续与高可靠能力地图（选读）
 
 ```text
 用户目标
@@ -69,27 +83,31 @@ Agent Runtime
             ↓
            LLM
             ↓
-回答或工具调用请求
+提问 / 回答 / 计划 / 工具调用 / 完成申请
             ↓
-Agent Runtime 校验并执行
+Agent Runtime 解析并校验
+    ├── 按需保存 Plan 或 Task
+    ├── 授权并执行 Tool Call
+    └── 检查 Completion Request
             ↓
-工具结果 / 环境反馈
-            └────────→ 下一轮
+Observation / 产物 / Evidence
+            ↓
+更新状态，继续下一轮或结束
 ```
 
-## 一轮是怎样发生的
+## 一次循环迭代怎样发生
 
 以“找出测试失败原因”为例：
 
 ```text
-1. Agent 读取当前 Goal 和运行状态
-2. Context Builder 放入错误日志和相关约束
-3. LLM 生成：请求搜索 `payment` 相关文件
-4. Agent 检查这个工具是否允许、参数是否合法
-5. 搜索工具真实执行
-6. 搜索结果保存为 Observation
-7. Agent 为下一轮重新构建上下文
-8. LLM 根据真实结果决定读取哪个文件
+1. Agent 读取当前 Goal 和运行状态；
+2. Context Builder 放入错误日志和相关约束；
+3. 发起一次 Model Call；
+4. LLM 生成：请求搜索 `payment` 相关文件；
+5. Agent 检查这个工具是否允许、参数是否合法；
+6. 搜索工具真实执行；
+7. 搜索结果保存为 Observation；
+8. Agent 重新构建上下文并发起下一次 Model Call。
 ```
 
 模型并不是在后台一直运行。常见 Agent 是由外部循环反复发起模型调用：
@@ -102,20 +120,38 @@ Agent Runtime 校验并执行
 → ……
 ```
 
-## 先认识六个运行对象
+## 先区分三组对象
+
+### 任务执行对象
 
 | 名称 | 最小理解 |
 |---|---|
 | Goal | 用户希望最终实现的目标及完成边界 |
 | Run | 围绕一个 Goal 发起的一次受控运行 |
-| Phase | Run 中具有不同权限和退出条件的阶段，例如探索、执行或验证 |
-| Turn | Agent 与模型进行的一轮请求和响应 |
+| Phase | Run 中具有不同权限和退出条件的可选阶段 |
 | Step | Run 中一个可记录的处理步骤或动作 |
-| Attempt | 对某个阶段或任务的一次执行尝试，失败后可以产生新的 Attempt |
+| Attempt | 对某个阶段或任务的一次执行尝试 |
 
-工具返回的真实结果通常称为 **Observation（观察结果）**，它会被记录并影响下一轮决策。
+### 产品交互与协议对象
 
-## 可靠 Agent 需要逐步回答的七个问题
+| 名称 | 最小理解 |
+|---|---|
+| Thread | 一整个持续对话或任务交互容器 |
+| Turn | 在 Codex 中，从一次用户输入到最终 Agent Message 的完整处理过程 |
+| Item | Turn 中可记录和展示的一条事件 |
+| Model Call | Agent Runtime 对模型服务的一次实际请求和响应 |
+
+### 循环反馈对象
+
+| 名称 | 最小理解 |
+|---|---|
+| Action | Agent 准备执行的动作，例如调用工具 |
+| Tool Result | 工具返回的原始结果 |
+| Observation | Agent 能够记录并用于下一步决策的环境反馈 |
+
+一个 Codex Turn 可以包含多次 Model Call、Tool Call 和 Observation。上述名称不是所有框架统一使用的标准，详细关系见 [[01-Thread-Turn-Item与Model-Call|Thread、Turn、Item 与 Model Call]]。
+
+## 任务复杂后需要逐步外置的七个问题
 
 | 问题 | 对应系统能力 |
 |---|---|
@@ -127,7 +163,9 @@ Agent Runtime 校验并执行
 | 失败后怎样继续 | Observation、重试、恢复和重新规划 |
 | 谁判断真的完成 | Verifier、Evidence 和 Acceptance |
 
-最小 Agent 不一定把七项都做成独立组件；但任务越长、风险越高，这些问题越不能只依赖模型临场处理。缺少其中任何一项，系统仍可能运行，但很难成为可靠的长期执行系统。
+最小 Agent 不需要把七项都做成独立组件，也可能暂时没有持久 Run、正式 Scope、独立 Evidence 或 Acceptance。任务越长、风险越高，这些问题才越需要从模型临场判断中外置出来。
+
+复杂任务还会增加“怎样把 Goal 分成 Tasks、怎样表示依赖”的规划问题；简单 Agent 可以直接逐轮选择下一步，所以显式 Plan 不是最小 Agent 的必需对象。
 
 ## Agent、Workflow 和模型调用
 
@@ -240,11 +278,11 @@ Agent 不应只依赖越来越长的聊天记录维持状态。可靠系统通�
 
 ### 只看框架
 
-读完本页后进入 [[00-目标与任务契约概览|目标与任务契约概览]]。该专题会先区分直接使用用户请求、持久化 Thread Goal 和完整任务契约三种层级，再进入高可靠 Goal Intake。
+读完本页后进入 [[00-目标与任务契约概览|目标与任务契约概览]]，再按照“Agent Loop → 运行状态 → 上下文 → 模型决策 → 工具 → Observation → 验收”的主线阅读。目标专题会区分直接使用用户请求、持久化 Thread Goal 和完整任务契约三种层级；Goal Intake 只作为高可靠可选扩展，不属于主线必读内容。
 
 ### 理解机制
 
-重点学习 Agent Loop、状态持久化、Context Builder、Tool Call 和反馈恢复。
+重点学习 Agent Loop、运行状态、Context Builder、模型决策、Tool Call 和 Observation 反馈。规划与任务图可以根据任务复杂度选读。
 
 ### 为搭建做准备
 
@@ -252,4 +290,4 @@ Agent 不应只依赖越来越长的聊天记录维持状态。可靠系统通�
 
 ## 框架停止点
 
-如果你能解释“LLM 只负责根据上下文生成候选下一步，Agent Runtime 负责状态、工具、权限、循环和验收”，就已经建立 Agent 的第一层框架。
+如果你能解释“LLM 根据本次 Context 生成候选下一步，外部程序执行工具并把结果送回下一次调用”，就已经建立 Agent 的基础结构。持久状态、恢复、权限分层和独立验收属于后续增强。

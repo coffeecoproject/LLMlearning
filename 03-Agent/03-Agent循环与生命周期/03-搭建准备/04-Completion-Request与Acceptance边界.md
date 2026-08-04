@@ -1,6 +1,7 @@
 ---
 type: implementation-note
 module: 3
+learning_layer: persistent-high-reliability
 status: complete
 audience: non-specialist
 parent: "[[00-Agent-Loop搭建概览|Agent Loop 搭建概览]]"

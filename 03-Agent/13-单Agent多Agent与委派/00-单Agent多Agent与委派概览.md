@@ -1,6 +1,7 @@
 ---
 type: topic-overview
 module: 3
+learning_layer: persistent-high-reliability
 status: planned
 audience: non-specialist
 parent: "[[00-Agent模块大纲|Agent 模块大纲]]"
@@ -11,6 +12,9 @@ tags: [agent, multi-agent, delegation, subagent]
 
 > [!summary]
 > 多 Agent 是把任务、上下文和权限分给多个执行单元，再汇总结果；它可以增加并行和隔离，也会增加协调、冲突、成本和验证难度。
+
+> [!note] 整篇层级：可选扩展
+> 多 Agent 不是基础 Agent 的前提。应先让单 Agent 的模型—工具—Observation 闭环可靠，再判断委派是否真的带来并行、隔离或专业化收益。
 
 ## 委派主线
 

@@ -1,6 +1,7 @@
 ---
 type: framework-note
 module: 3
+learning_layer: cross-layer
 status: complete
 audience: non-specialist
 parent: "[[00-目标与任务契约概览|目标与任务契约概览]]"
